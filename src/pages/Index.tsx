@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { ChallengeCard } from "@/components/ChallengeCard";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Search } from "lucide-react";
+import { Search, Trophy, ChevronRight } from "lucide-react";
 import { ImpactMetrics } from "@/components/ImpactMetrics";
 import { AddChallengeButton } from "@/components/AddChallengeButton";
 import { RequestsSection } from "@/components/RequestsSection";
@@ -34,6 +34,24 @@ const MOCK_ACTIVE_CHALLENGES = [
   },
 ];
 
+const MOCK_COMPLETED_CHALLENGES = [
+  {
+    id: "3",
+    title: "Beach Cleanup Drive",
+    completedDate: "2024-02-28",
+    peopleInChain: 89,
+    impact: "247 kg waste collected",
+    icon: "trophy"
+  },
+  {
+    id: "4",
+    title: "Winter Clothing Drive",
+    completedDate: "2024-02-15",
+    peopleInChain: 123,
+    impact: "560 items donated",
+    icon: "trophy"
+  }
+];
 
 export default function Index() {
   return (
@@ -86,6 +104,36 @@ export default function Index() {
                         style={{ width: `${challenge.progress}%` }}
                       />
                     </div>
+                  </div>
+                </Card>
+              </Link>
+            ))}
+          </div>
+        </div>
+        
+        <div className="mb-8">
+          <h2 className="text-2xl font-semibold mb-4">Completed Challenges</h2>
+          <div className="space-y-4">
+            {MOCK_COMPLETED_CHALLENGES.map((challenge) => (
+              <Link to={`/challenge/${challenge.id}`} key={challenge.id}>
+                <Card className="p-4 hover:bg-muted/50 transition-colors">
+                  <div className="flex items-center gap-4">
+                    <div className="h-12 w-12 bg-muted rounded-full flex items-center justify-center">
+                      <Trophy className="h-6 w-6 text-teal-500" />
+                    </div>
+                    <div className="flex-1">
+                      <h3 className="font-semibold">{challenge.title}</h3>
+                      <p className="text-sm text-muted-foreground">
+                        Completed on {new Date(challenge.completedDate).toLocaleDateString()}
+                      </p>
+                      <div className="flex items-center gap-4 mt-1 text-sm">
+                        <span>{challenge.impact}</span>
+                        <span>{challenge.peopleInChain} people participated</span>
+                      </div>
+                    </div>
+                    <Button variant="ghost" size="icon">
+                      <ChevronRight className="h-4 w-4" />
+                    </Button>
                   </div>
                 </Card>
               </Link>
