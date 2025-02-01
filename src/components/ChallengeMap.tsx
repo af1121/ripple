@@ -17,13 +17,13 @@ interface ChallengeMapProps {
 
 declare global {
   interface Window {
-    google: any;
+    google: typeof google;
   }
 }
 
 export function ChallengeMap({ participants }: ChallengeMapProps) {
   const mapRef = useRef<HTMLDivElement>(null);
-  const googleMapRef = useRef<any>(null);
+  const googleMapRef = useRef<google.maps.Map>(null);
 
   useEffect(() => {
     const loadMap = () => {
@@ -32,23 +32,6 @@ export function ChallengeMap({ participants }: ChallengeMapProps) {
       const bounds = new window.google.maps.LatLngBounds();
       const map = new window.google.maps.Map(mapRef.current, {
         zoom: 2,
-        styles: [
-          {
-            featureType: "all",
-            elementType: "geometry",
-            stylers: [{ color: "#242f3e" }],
-          },
-          {
-            featureType: "all",
-            elementType: "labels.text.stroke",
-            stylers: [{ color: "#242f3e" }],
-          },
-          {
-            featureType: "all",
-            elementType: "labels.text.fill",
-            stylers: [{ color: "#746855" }],
-          },
-        ],
       });
 
       googleMapRef.current = map;

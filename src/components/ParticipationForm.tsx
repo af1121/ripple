@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 
-interface ParticipationFormData {
+export interface ParticipationFormData {
   userName: string;
   mediaUrl: string;
   location: {

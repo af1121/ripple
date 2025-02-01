@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { useParams } from "react-router-dom";
-import { ParticipationForm } from "@/components/ParticipationForm";
-import { ChallengeMap } from "@/components/ChallengeMap";
+import { ParticipationForm, ParticipationFormData } from "@/components/ParticipationForm";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -13,6 +12,8 @@ import {
   ChevronLeft,
 } from "lucide-react";
 import { Link } from "react-router-dom";
+import { ChallengeMap } from "@/components/ChallengeMap";
+import { ChallengeChain } from "@/components/ChallengeChain";
 
 const MOCK_CHALLENGE = {
   id: "1",
@@ -41,13 +42,41 @@ const MOCK_PARTICIPANTS = [
   },
 ];
 
+const MOCK_CHAIN = [
+  {
+    id: "1",
+    userName: "John Doe",
+    createdAt: "2024-03-01T12:00:00Z",
+    location: { lat: 40.7128, lng: -74.0060 },
+  },
+  {
+    id: "2",
+    userName: "Jane Smith",
+    nominatedBy: "1",
+    createdAt: "2024-03-02T15:30:00Z",
+    location: { lat: 51.5074, lng: -0.1278 },
+  },
+  {
+    id: "3",
+    userName: "Alice Johnson",
+    nominatedBy: "2",
+    createdAt: "2024-03-03T10:00:00Z",
+    location: { lat: 48.8566, lng: 2.3522 },
+  },
+  {
+    id: "4",
+    userName: "Bob Wilson",
+    nominatedBy: "2",
+    createdAt: "2024-03-04T09:00:00Z",
+  },
+];
+
 export default function ChallengeDetail() {
   const { id } = useParams();
   const [showParticipationForm, setShowParticipationForm] = useState(false);
 
-  const handleParticipation = async (data: any) => {
+  const handleParticipation = async (data: ParticipationFormData) => {
     console.log("Participation data:", data);
-    // Here you would typically send this data to your backend
     setShowParticipationForm(false);
   };
 
@@ -110,11 +139,7 @@ export default function ChallengeDetail() {
               </div>
             </div>
           </Card>
-
-          <div className="space-y-4">
-            <h2 className="text-2xl font-semibold">Challenge Map</h2>
-            <ChallengeMap participants={MOCK_PARTICIPANTS} />
-          </div>
+          <ChallengeChain participants={MOCK_CHAIN} />
         </div>
 
         <div className="space-y-8">
