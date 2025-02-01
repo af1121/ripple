@@ -6,8 +6,8 @@ import { Search } from "lucide-react";
 import { ImpactMetrics } from "@/components/ImpactMetrics";
 import { AddChallengeButton } from "@/components/AddChallengeButton";
 import { RequestsSection } from "@/components/RequestsSection";
-import { collection, getDocs } from "firebase/firestore";
-import { db } from "../firebase";
+import { getUserById, type User } from "@/firebase_functions";
+
 
 const MOCK_CHALLENGES = [
   {
@@ -44,15 +44,10 @@ const MOCK_CHALLENGES = [
   },
 ];
 
-interface User {
-  id: string;
-  username: string;
-  password: string;
-}
-
 export default function Index() {
   const [searchQuery, setSearchQuery] = useState("");
   const [users, setUsers] = useState<User[]>([]);
+  const [user, setUser] = useState<User | null>(null);
 
   const filteredChallenges = MOCK_CHALLENGES.filter((challenge) =>
     challenge.title.toLowerCase().includes(searchQuery.toLowerCase())
@@ -75,6 +70,19 @@ export default function Index() {
 
     fetchUsers();
     console.log(users);
+  }, []);
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      const userId = "your-user-id"; // Replace with actual user ID
+      const userData = await getUserById(userId);
+      if (userData) {
+        setUser(userData);
+        console.log("Found user:", userData);
+      }
+    };
+
+    fetchUser();
   }, []);
 
   return (
