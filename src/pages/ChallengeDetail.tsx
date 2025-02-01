@@ -13,7 +13,7 @@ import {
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { ChallengeMap } from "@/components/ChallengeMap";
-import { ChallengeChain } from "@/components/ChallengeChain";
+import { ChallengeChain, ChainNode } from "@/components/ChallengeChain";
 
 const MOCK_CHALLENGE = {
   id: "1",
@@ -21,55 +21,58 @@ const MOCK_CHALLENGE = {
   description: "Join the fitness revolution! Complete 30 days of progressive workouts and share your journey with the community. Together, we'll build healthier habits and inspire others to join the movement.",
   startDate: "2024-03-01",
   endDate: "2024-03-30",
-  participants: 1234,
+  participants: 60,
   charityName: "Global Health Foundation",
   charityUrl: "https://example.com/charity",
   imageUrl: "https://images.unsplash.com/photo-1517836357463-d25dfeac3438?auto=format&fit=crop&q=80",
 };
 
-const MOCK_PARTICIPANTS = [
-  {
-    id: "1",
-    userName: "John Doe",
-    location: { lat: 40.7128, lng: -74.0060 },
-    createdAt: "2024-03-01T12:00:00Z",
-  },
-  {
-    id: "2",
-    userName: "Jane Smith",
-    location: { lat: 51.5074, lng: -0.1278 },
-    createdAt: "2024-03-02T15:30:00Z",
-  },
-];
+const MOCK_CHAIN = (() => {
+  const chain = [];
+  const cities = [
+    { name: "New York", coords: { lat: 40.7128, lng: -74.0060 } },
+    { name: "London", coords: { lat: 51.5074, lng: -0.1278 } },
+    { name: "Paris", coords: { lat: 48.8566, lng: 2.3522 } },
+    { name: "Tokyo", coords: { lat: 35.6762, lng: 139.6503 } },
+    { name: "Sydney", coords: { lat: -33.8688, lng: 151.2093 } },
+    { name: "Berlin", coords: { lat: 52.5200, lng: 13.4050 } },
+    // ... previous cities ...
+  ];
 
-const MOCK_CHAIN = [
-  {
-    id: "1",
-    userName: "John Doe",
-    createdAt: "2024-03-01T12:00:00Z",
-    location: { lat: 40.7128, lng: -74.0060 },
-  },
-  {
-    id: "2",
-    userName: "Jane Smith",
-    nominatedBy: "1",
-    createdAt: "2024-03-02T15:30:00Z",
-    location: { lat: 51.5074, lng: -0.1278 },
-  },
-  {
-    id: "3",
-    userName: "Alice Johnson",
-    nominatedBy: "2",
-    createdAt: "2024-03-03T10:00:00Z",
-    location: { lat: 48.8566, lng: 2.3522 },
-  },
-  {
-    id: "4",
-    userName: "Bob Wilson",
-    nominatedBy: "2",
-    createdAt: "2024-03-04T09:00:00Z",
-  },
-];
+  // Helper function to get random number between min and max (inclusive)
+  const getRandomInt = (min: number, max: number) => 
+    Math.floor(Math.random() * (max - min + 1)) + min;
+
+  // Generate 60 participants with unique cities
+  for (let i = 0; i < 60; i++) {
+    const date = new Date("2024-03-01T12:00:00Z");
+    date.setHours(date.getHours() + getRandomInt(0, 72));
+
+    const participant: ChainNode = {
+      id: (i + 1).toString(),
+      userName: `${cities[i % cities.length].name} Participant`,
+      createdAt: date.toISOString(),
+      location: cities[i % cities.length].coords,
+    };
+
+    // First participant is the root (no nominatedBy)
+    if (i > 0) {
+      // Choose a random previous participant as nominator
+      const possibleNominators = chain.slice(0, Math.max(1, Math.floor(i * 0.75)));
+      const nominator = possibleNominators[getRandomInt(0, possibleNominators.length - 1)];
+      
+      // Only add nominatedBy if we found a valid nominator and they haven't nominated too many
+      const nominationCount = chain.filter(p => p.nominatedBy === nominator.id).length;
+      if (nominator && nominationCount < 3) {
+        participant.nominatedBy = nominator.id;
+      }
+    }
+
+    chain.push(participant);
+  }
+
+  return chain;
+})();
 
 export default function ChallengeDetail() {
   const { id } = useParams();

@@ -1,18 +1,17 @@
 import { useEffect, useRef } from "react";
 import { Card } from "@/components/ui/card";
 
-interface Participant {
-  id: string;
-  userName: string;
-  location: {
-    lat: number;
-    lng: number;
-  };
-  createdAt: string;
-}
-
 interface ChallengeMapProps {
-  participants: Participant[];
+  participants: {
+    id: string;
+    userName: string;
+    location?: {
+      lat: number;
+      lng: number;
+    };
+    createdAt: string;
+    nominatedBy?: string;
+  }[];
 }
 
 declare global {
@@ -25,6 +24,10 @@ export function ChallengeMap({ participants }: ChallengeMapProps) {
   const mapRef = useRef<HTMLDivElement>(null);
   const googleMapRef = useRef<google.maps.Map>(null);
 
+  const participantsWithLocation = participants.filter((p): p is (typeof participants[0] & { location: NonNullable<typeof participants[0]['location']> }) => 
+    !!p.location
+  );
+
   useEffect(() => {
     const loadMap = () => {
       if (!window.google || !mapRef.current) return;
@@ -36,7 +39,7 @@ export function ChallengeMap({ participants }: ChallengeMapProps) {
 
       googleMapRef.current = map;
 
-      participants.forEach((participant) => {
+      participantsWithLocation.forEach((participant) => {
         const marker = new window.google.maps.Marker({
           position: participant.location,
           map,
@@ -62,7 +65,7 @@ export function ChallengeMap({ participants }: ChallengeMapProps) {
         });
       });
 
-      if (participants.length > 0) {
+      if (participantsWithLocation.length > 0) {
         map.fitBounds(bounds);
       }
     };
@@ -80,7 +83,7 @@ export function ChallengeMap({ participants }: ChallengeMapProps) {
         document.head.appendChild(script);
       }
     }
-  }, [participants]);
+  }, [participantsWithLocation]);
 
   return (
     <Card className="overflow-hidden">

@@ -1,10 +1,10 @@
 import { useEffect, useRef } from "react";
 import { Card } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ChallengeMap } from "@/components/ChallengeMap";
-import { Participant } from "@/types";
+import { Network, Edge, Node, Options } from "vis-network";
+import { DataSet } from "vis-data";
 
-interface ChainNode {
+export interface ChainNode {
   id: string;
   userName: string;
   nominatedBy?: string;
@@ -15,78 +15,109 @@ interface ChainNode {
   };
 }
 
-interface ChallengeChainProps {
-  participants: ChainNode[];
-}
-
-export function ChallengeChain({ participants }: ChallengeChainProps) {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
+export function ChallengeChain({ participants }: { participants: ChainNode[] }) {
+  const networkRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
+    if (!networkRef.current) return;
 
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
+    // Create nodes and edges from participants
+    const nodes = new DataSet<Node>(
+      participants.map(p => ({
+        id: p.id,
+        label: p.userName,
+        title: `${p.userName}<br/>Joined: ${new Date(p.createdAt).toLocaleDateString()}`,
+      }))
+    );
 
-    // Set canvas size
-    canvas.width = canvas.offsetWidth;
-    canvas.height = canvas.offsetHeight;
+    const edges = new DataSet<Edge>(
+      participants
+        .filter(p => p.nominatedBy)
+        .map(p => ({
+          id: `${p.nominatedBy}-${p.id}`,
+          from: p.nominatedBy,
+          to: p.id,
+          arrows: "to",
+        }))
+    );
 
-    // Clear canvas
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    // Configure the network
+    const options: Options = {
+      nodes: {
+        shape: "dot",
+        size: 20,
+        font: {
+          size: 14,
+        },
+        borderWidth: 2,
+        color: {
+          background: "#f97316",
+          border: "#ea580c",
+          highlight: {
+            background: "#fb923c",
+            border: "#ea580c",
+          },
+        },
+      },
+      edges: {
+        width: 2,
+        color: {
+          color: "#cbd5e1",
+          highlight: "#94a3b8",
+        },
+        smooth: {
+          enabled: true,
+          type: "continuous",
+          roundness: 0.5
+        },
+      },
+      physics: {
+        stabilization: true,
+        barnesHut: {
+          gravitationalConstant: -80000,
+          springConstant: 0.001,
+          springLength: 200,
+        },
+      },
+      layout: {
+        hierarchical: {
+          enabled: true,
+          direction: "UD",
+          sortMethod: "directed",
+          nodeSpacing: 150,
+          levelSeparation: 150,
+        },
+      },
+    };
 
-    // Draw connections
-    ctx.strokeStyle = "#000";
-    ctx.lineWidth = 2;
+    // Create the network
+    const network = new Network(
+      networkRef.current,
+      { nodes, edges },
+      options
+    );
 
-    // Draw nodes
-    const nodeRadius = 20;
-    const nodeColor = "#f97316"; // Orange color
-
-    participants.forEach((participant, index) => {
-      const x = canvas.width / 2;
-      const y = 50 + (index * 80);
-
-      // Draw node
-      ctx.beginPath();
-      ctx.arc(x, y, nodeRadius, 0, Math.PI * 2);
-      ctx.fillStyle = nodeColor;
-      ctx.fill();
-
-      // Draw connection line to nominator
-      if (participant.nominatedBy) {
-        const nominatorIndex = participants.findIndex(p => p.id === participant.nominatedBy);
-        if (nominatorIndex !== -1) {
-          ctx.beginPath();
-          ctx.moveTo(x, y - nodeRadius);
-          ctx.lineTo(x, 50 + (nominatorIndex * 80) + nodeRadius);
-          ctx.stroke();
-        }
-      }
-    });
+    // Cleanup
+    return () => {
+      network.destroy();
+    };
   }, [participants]);
 
   return (
-    <Card className="overflow-hidden">
-      <Tabs defaultValue="tree">
-        <TabsList className="w-full">
-          <TabsTrigger value="tree" className="flex-1">Tree view</TabsTrigger>
-          <TabsTrigger value="map" className="flex-1">Map view</TabsTrigger>
-        </TabsList>
-        <TabsContent value="tree" className="p-6">
-          <canvas 
-            ref={canvasRef} 
-            className="w-full"
-            style={{ height: "400px" }}
+    <div className="space-y-8">
+      <Card className="overflow-hidden">
+        <ChallengeMap participants={participants} />
+      </Card>
+      <Card className="overflow-hidden">
+        <div className="p-6">
+          <h2 className="text-xl font-semibold mb-4">Nomination Chain</h2>
+          <div 
+            ref={networkRef} 
+            className="w-full" 
+            style={{ height: "600px" }}
           />
-        </TabsContent>
-        <TabsContent value="map">
-          <ChallengeMap 
-            participants={participants.filter((p): p is Participant => !!p.location) as Participant[]} 
-          />
-        </TabsContent>
-      </Tabs>
-    </Card>
+        </div>
+      </Card>
+    </div>
   );
 } 
