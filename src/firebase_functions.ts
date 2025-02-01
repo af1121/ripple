@@ -1,4 +1,4 @@
-import { collection, getDocs, doc, getDoc } from "firebase/firestore";
+import { collection, getDocs, doc, getDoc, addDoc, Timestamp } from "firebase/firestore";
 import { db } from "./firebase";
 
 interface User {
@@ -39,6 +39,7 @@ interface Deed {
   location: string;
   prevDeedID: string;
   nextDeedID: string;
+  numContributions: number;
 }
 
 
@@ -203,6 +204,87 @@ export const getDeedById = async (deedId: string): Promise<Deed | null> => {
     return null;
   } catch (error) {
     console.error("Error fetching deed:", error);
+    return null;
+  }
+};
+
+export const createUser = async (userData: Omit<User, 'id'>): Promise<User | null> => {
+  try {
+    const docRef = await addDoc(collection(db, "users"), userData);
+    return {
+      id: docRef.id,
+      ...userData
+    };
+  } catch (error) {
+    console.error("Error creating user:", error);
+    return null;
+  }
+};
+
+export const createNomination = async (nominationData: Omit<Nomination, 'id'>): Promise<Nomination | null> => {
+  try {
+    const docRef = await addDoc(collection(db, "nominations"), nominationData);
+    return {
+      id: docRef.id,
+      ...nominationData
+    };
+  } catch (error) {
+    console.error("Error creating nomination:", error);
+    return null;
+  }
+};
+
+export const createRequest = async (requestData: Omit<Request, 'id'>): Promise<Request | null> => {
+  try {
+    const docRef = await addDoc(collection(db, "requests"), requestData);
+    return {
+      id: docRef.id,
+      ...requestData
+    };
+  } catch (error) {
+    console.error("Error creating request:", error);
+    return null;
+  }
+};
+
+export const createChallenge = async (
+  challengeData: Omit<Challenge, 'id' | 'started_at'> & { started_at?: Date }
+): Promise<Challenge | null> => {
+  try {
+    const data = {
+      ...challengeData,
+      started_at: Timestamp.fromDate(challengeData.started_at || new Date())
+    };
+    
+    const docRef = await addDoc(collection(db, "challenges"), data);
+    return {
+      id: docRef.id,
+      ...challengeData,
+      started_at: challengeData.started_at || new Date()
+    };
+  } catch (error) {
+    console.error("Error creating challenge:", error);
+    return null;
+  }
+};
+
+export const createDeed = async (
+  deedData: Omit<Deed, 'id' | 'done_at'> & { done_at?: Date }
+): Promise<Deed | null> => {
+  try {
+    const data = {
+      ...deedData,
+      done_at: Timestamp.fromDate(deedData.done_at || new Date())
+    };
+    
+    const docRef = await addDoc(collection(db, "deeds"), data);
+    return {
+      id: docRef.id,
+      ...deedData,
+      done_at: deedData.done_at || new Date()
+    };
+  } catch (error) {
+    console.error("Error creating deed:", error);
     return null;
   }
 };
