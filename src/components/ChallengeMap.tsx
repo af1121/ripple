@@ -77,11 +77,11 @@ export function ChallengeMap({ participants }: ChallengeMapProps) {
 
           if (parentMarker && childMarker) {
             const lineSymbol = {
-              path: window.google.maps.SymbolPath.CIRCLE,
-              fillOpacity: 1,
-              scale: 3,
-              strokeColor: "#f97316",
-              strokeWeight: 1,
+              path: 'M 0,-1 0,1',          // Vertical line symbol
+              strokeOpacity: 1,
+              scale: 3,                    // Longer dash
+              strokeColor: "#2563eb",      // Blue color
+              strokeWeight: 2.0,           // Thicker line
             };
 
             const line = new window.google.maps.Polyline({
@@ -90,12 +90,12 @@ export function ChallengeMap({ participants }: ChallengeMapProps) {
                 childMarker.getPosition()!
               ],
               geodesic: true,
-              strokeColor: "#f97316",
+              strokeColor: "#2563eb",      // Blue color
               strokeOpacity: 0,
               icons: [{
                 icon: lineSymbol,
                 offset: "0",
-                repeat: "20px"
+                repeat: "15px"             // Space between dashes
               }],
             });
             line.setMap(map);
