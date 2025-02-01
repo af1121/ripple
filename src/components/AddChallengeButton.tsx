@@ -9,7 +9,7 @@ export function AddChallengeButton() {
   return (
     <>
       <Button
-        className="fixed bottom-6 right-6 h-14 w-14 rounded-full shadow-lg bg-orange-500 hover:bg-orange-600 text-white border-none"
+        className="fixed bottom-6 right-6 h-14 w-14 rounded-full shadow-lg bg-teal-500 hover:bg-teal-600 text-white border-none"
         size="icon"
         onClick={() => setOpen(true)}
       >

@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { useParams } from "react-router-dom";
-import { ParticipationForm } from "@/components/ParticipationForm";
-import { ChallengeMap } from "@/components/ChallengeMap";
+import { ParticipationForm, ParticipationFormData } from "@/components/ParticipationForm";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -13,6 +12,8 @@ import {
   ChevronLeft,
 } from "lucide-react";
 import { Link } from "react-router-dom";
+import { ChallengeMap } from "@/components/ChallengeMap";
+import { ChallengeChain, ChainNode } from "@/components/ChallengeChain";
 
 const MOCK_CHALLENGE = {
   id: "1",
@@ -20,34 +21,76 @@ const MOCK_CHALLENGE = {
   description: "Join the fitness revolution! Complete 30 days of progressive workouts and share your journey with the community. Together, we'll build healthier habits and inspire others to join the movement.",
   startDate: "2024-03-01",
   endDate: "2024-03-30",
-  participants: 1234,
+  participants: 60,
   charityName: "Global Health Foundation",
   charityUrl: "https://example.com/charity",
   imageUrl: "https://images.unsplash.com/photo-1517836357463-d25dfeac3438?auto=format&fit=crop&q=80",
 };
 
-const MOCK_PARTICIPANTS = [
-  {
+const MOCK_CHAIN = (() => {
+  const chain: ChainNode[] = [];
+  const cities = [
+    { name: "New York", coords: { lat: 40.7128, lng: -74.0060 } },
+    { name: "London", coords: { lat: 51.5074, lng: -0.1278 } },
+    { name: "Paris", coords: { lat: 48.8566, lng: 2.3522 } },
+    { name: "Tokyo", coords: { lat: 35.6762, lng: 139.6503 } },
+    { name: "Sydney", coords: { lat: -33.8688, lng: 151.2093 } },
+    { name: "Berlin", coords: { lat: 52.5200, lng: 13.4050 } },
+  ];
+
+  const getRandomInt = (min: number, max: number) => 
+    Math.floor(Math.random() * (max - min + 1)) + min;
+
+  // Create root participant
+  const rootDate = new Date("2024-03-01T12:00:00Z");
+  chain.push({
     id: "1",
-    userName: "John Doe",
-    location: { lat: 40.7128, lng: -74.0060 },
-    createdAt: "2024-03-01T12:00:00Z",
-  },
-  {
-    id: "2",
-    userName: "Jane Smith",
-    location: { lat: 51.5074, lng: -0.1278 },
-    createdAt: "2024-03-02T15:30:00Z",
-  },
-];
+    userName: "Challenge Creator",
+    createdAt: rootDate.toISOString(),
+    location: cities[0].coords,
+  });
+
+  let currentId = 1;
+  let currentLevel = [1]; // IDs of nodes at current level
+
+  // Generate 3-4 levels of participants
+  while (chain.length < 60 && currentLevel.length > 0) {
+    const nextLevel: number[] = [];
+    
+    for (const parentId of currentLevel) {
+      // Each parent nominates 2-4 participants
+      const numChildren = getRandomInt(2, 4);
+      
+      for (let i = 0; i < numChildren && chain.length < 60; i++) {
+        currentId++;
+        const date = new Date(rootDate);
+        date.setHours(date.getHours() + getRandomInt(1, 72));
+
+        const participant: ChainNode = {
+          id: currentId.toString(),
+          userName: `${cities[currentId % cities.length].name} Participant`,
+          createdAt: date.toISOString(),
+          location: cities[currentId % cities.length].coords,
+          nominatedBy: parentId.toString()
+        };
+
+        chain.push(participant);
+        nextLevel.push(currentId);
+      }
+    }
+
+    currentLevel = nextLevel;
+  }
+
+  return chain;
+})();
 
 export default function ChallengeDetail() {
   const { id } = useParams();
   const [showParticipationForm, setShowParticipationForm] = useState(false);
 
-  const handleParticipation = async (data: any) => {
+  const handleParticipation = async (data: ParticipationFormData) => {
     console.log("Participation data:", data);
-    // Here you would typically send this data to your backend
     setShowParticipationForm(false);
   };
 
@@ -110,11 +153,7 @@ export default function ChallengeDetail() {
               </div>
             </div>
           </Card>
-
-          <div className="space-y-4">
-            <h2 className="text-2xl font-semibold">Challenge Map</h2>
-            <ChallengeMap participants={MOCK_PARTICIPANTS} />
-          </div>
+          <ChallengeChain participants={MOCK_CHAIN} />
         </div>
 
         <div className="space-y-8">

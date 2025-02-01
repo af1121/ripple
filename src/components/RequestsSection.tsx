@@ -1,6 +1,7 @@
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ChevronRight, Trees, Coffee } from "lucide-react";
+import { Link } from "react-router-dom";
 
 interface Request {
   id: string;
@@ -43,26 +44,28 @@ export function RequestsSection() {
         {MOCK_REQUESTS.map((request) => {
           const Icon = IconMap[request.icon];
           return (
-            <Card key={request.id} className="p-4">
-              <div className="flex items-center gap-4">
-                <div className="h-12 w-12 bg-muted rounded-full flex items-center justify-center">
-                  <Icon className="h-6 w-6 text-muted-foreground" />
-                </div>
-                <div className="flex-1">
-                  <h3 className="font-semibold">{request.title}</h3>
-                  <p className="text-sm text-muted-foreground">
-                    NOMINATED BY {request.nominatedBy}
-                  </p>
-                  <div className="flex items-center gap-4 mt-1 text-sm">
-                    <span>Time left: {request.timeLeft}</span>
-                    <span>{request.peopleInChain} people in the chain</span>
+            <Link to={`/challenge/${request.id}`} key={request.id}>
+              <Card className="p-4 hover:bg-muted/50 transition-colors">
+                <div className="flex items-center gap-4">
+                  <div className="h-12 w-12 bg-muted rounded-full flex items-center justify-center">
+                    <Icon className="h-6 w-6 text-muted-foreground" />
                   </div>
+                  <div className="flex-1">
+                    <h3 className="font-semibold">{request.title}</h3>
+                    <p className="text-sm text-muted-foreground">
+                      NOMINATED BY {request.nominatedBy}
+                    </p>
+                    <div className="flex items-center gap-4 mt-1 text-sm">
+                      <span>Time left: {request.timeLeft}</span>
+                      <span>{request.peopleInChain} people in the chain</span>
+                    </div>
+                  </div>
+                  <Button variant="ghost" size="icon">
+                    <ChevronRight className="h-4 w-4" />
+                  </Button>
                 </div>
-                <Button variant="ghost" size="icon">
-                  <ChevronRight className="h-4 w-4" />
-                </Button>
-              </div>
-            </Card>
+              </Card>
+            </Link>
           );
         })}
       </div>

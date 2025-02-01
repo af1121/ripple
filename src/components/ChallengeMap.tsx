@@ -1,29 +1,32 @@
 import { useEffect, useRef } from "react";
 import { Card } from "@/components/ui/card";
 
-interface Participant {
-  id: string;
-  userName: string;
-  location: {
-    lat: number;
-    lng: number;
-  };
-  createdAt: string;
-}
-
 interface ChallengeMapProps {
-  participants: Participant[];
+  participants: {
+    id: string;
+    userName: string;
+    location?: {
+      lat: number;
+      lng: number;
+    };
+    createdAt: string;
+    nominatedBy?: string;
+  }[];
 }
 
 declare global {
   interface Window {
-    google: any;
+    google: typeof google;
   }
 }
 
 export function ChallengeMap({ participants }: ChallengeMapProps) {
   const mapRef = useRef<HTMLDivElement>(null);
-  const googleMapRef = useRef<any>(null);
+  const googleMapRef = useRef<google.maps.Map>(null);
+
+  const participantsWithLocation = participants.filter((p): p is (typeof participants[0] & { location: NonNullable<typeof participants[0]['location']> }) => 
+    !!p.location
+  );
 
   useEffect(() => {
     const loadMap = () => {
@@ -32,28 +35,14 @@ export function ChallengeMap({ participants }: ChallengeMapProps) {
       const bounds = new window.google.maps.LatLngBounds();
       const map = new window.google.maps.Map(mapRef.current, {
         zoom: 2,
-        styles: [
-          {
-            featureType: "all",
-            elementType: "geometry",
-            stylers: [{ color: "#242f3e" }],
-          },
-          {
-            featureType: "all",
-            elementType: "labels.text.stroke",
-            stylers: [{ color: "#242f3e" }],
-          },
-          {
-            featureType: "all",
-            elementType: "labels.text.fill",
-            stylers: [{ color: "#746855" }],
-          },
-        ],
       });
 
       googleMapRef.current = map;
 
-      participants.forEach((participant) => {
+      // Create markers and store them in a map for line drawing
+      const markerMap = new Map<string, google.maps.Marker>();
+
+      participantsWithLocation.forEach((participant) => {
         const marker = new window.google.maps.Marker({
           position: participant.location,
           map,
@@ -61,6 +50,7 @@ export function ChallengeMap({ participants }: ChallengeMapProps) {
           animation: window.google.maps.Animation.DROP,
         });
 
+        markerMap.set(participant.id, marker);
         bounds.extend(participant.location);
 
         const infoWindow = new window.google.maps.InfoWindow({
@@ -79,7 +69,50 @@ export function ChallengeMap({ participants }: ChallengeMapProps) {
         });
       });
 
-      if (participants.length > 0) {
+      // Draw lines between connected participants
+      participantsWithLocation.forEach((participant) => {
+        if (participant.nominatedBy) {
+          const parentMarker = markerMap.get(participant.nominatedBy);
+          const childMarker = markerMap.get(participant.id);
+
+          if (parentMarker && childMarker) {
+            const lineSymbol = {
+              path: 'M 0,-1 0,1',          // Vertical line symbol
+              strokeOpacity: 1,
+              scale: 3,                    // Longer dash
+              strokeColor: "#2563eb",      // Blue color
+              strokeWeight: 2.0,           // Thicker line
+            };
+
+            const line = new window.google.maps.Polyline({
+              path: [
+                parentMarker.getPosition()!,
+                childMarker.getPosition()!
+              ],
+              geodesic: true,
+              strokeColor: "#2563eb",      // Blue color
+              strokeOpacity: 0,
+              icons: [{
+                icon: lineSymbol,
+                offset: "0",
+                repeat: "15px"             // Space between dashes
+              }],
+            });
+            line.setMap(map);
+
+            // Animate the line
+            let count = 0;
+            window.setInterval(() => {
+              count = (count + 1) % 200;
+              const icons = line.get("icons");
+              icons[0].offset = (count / 2) + "px";
+              line.set("icons", icons);
+            }, 20);
+          }
+        }
+      });
+
+      if (participantsWithLocation.length > 0) {
         map.fitBounds(bounds);
       }
     };
@@ -90,14 +123,14 @@ export function ChallengeMap({ participants }: ChallengeMapProps) {
         loadMap();
       } else {
         const script = document.createElement("script");
-        script.src = `https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY`;
+        script.src = `https://maps.googleapis.com/maps/api/js?key=${import.meta.env.VITE_GOOGLE_MAPS_API_KEY}`;
         script.async = true;
         script.defer = true;
         script.onload = loadMap;
         document.head.appendChild(script);
       }
     }
-  }, [participants]);
+  }, [participantsWithLocation]);
 
   return (
     <Card className="overflow-hidden">
