@@ -39,6 +39,9 @@ export function ChallengeMap({ participants }: ChallengeMapProps) {
 
       googleMapRef.current = map;
 
+      // Create markers and store them in a map for line drawing
+      const markerMap = new Map<string, google.maps.Marker>();
+
       participantsWithLocation.forEach((participant) => {
         const marker = new window.google.maps.Marker({
           position: participant.location,
@@ -47,6 +50,7 @@ export function ChallengeMap({ participants }: ChallengeMapProps) {
           animation: window.google.maps.Animation.DROP,
         });
 
+        markerMap.set(participant.id, marker);
         bounds.extend(participant.location);
 
         const infoWindow = new window.google.maps.InfoWindow({
@@ -63,6 +67,49 @@ export function ChallengeMap({ participants }: ChallengeMapProps) {
         marker.addListener("click", () => {
           infoWindow.open(map, marker);
         });
+      });
+
+      // Draw lines between connected participants
+      participantsWithLocation.forEach((participant) => {
+        if (participant.nominatedBy) {
+          const parentMarker = markerMap.get(participant.nominatedBy);
+          const childMarker = markerMap.get(participant.id);
+
+          if (parentMarker && childMarker) {
+            const lineSymbol = {
+              path: window.google.maps.SymbolPath.CIRCLE,
+              fillOpacity: 1,
+              scale: 3,
+              strokeColor: "#f97316",
+              strokeWeight: 1,
+            };
+
+            const line = new window.google.maps.Polyline({
+              path: [
+                parentMarker.getPosition()!,
+                childMarker.getPosition()!
+              ],
+              geodesic: true,
+              strokeColor: "#f97316",
+              strokeOpacity: 0,
+              icons: [{
+                icon: lineSymbol,
+                offset: "0",
+                repeat: "20px"
+              }],
+            });
+            line.setMap(map);
+
+            // Animate the line
+            let count = 0;
+            window.setInterval(() => {
+              count = (count + 1) % 200;
+              const icons = line.get("icons");
+              icons[0].offset = (count / 2) + "px";
+              line.set("icons", icons);
+            }, 20);
+          }
+        }
       });
 
       if (participantsWithLocation.length > 0) {
