@@ -18,7 +18,6 @@ const MOCK_USER_ID = "DbDAsedHMR5g8h8ohdas";
 const MOCK_ACTIVE_CHALLENGES = [
   {
     id: "1",
-
     title: "30 Days of Fitness",
     startDate: "2024-03-01",
     endDate: "2024-03-30",
@@ -28,6 +27,15 @@ const MOCK_ACTIVE_CHALLENGES = [
   {
     id: "2",
     title: "Plant a Tree Challenge",
+    startDate: "2024-03-01",
+    endDate: "2024-03-30",
+    participants: 60,
+    progress: 70, // percentage complete
+  },
+];
+
+
+export default function Index() {
   return (
     <>
       <header className="border-b">
