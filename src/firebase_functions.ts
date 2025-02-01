@@ -1,4 +1,4 @@
-import { collection, getDocs, doc, getDoc, addDoc, Timestamp } from "firebase/firestore";
+import { collection, getDocs, doc, getDoc, addDoc, Timestamp, query, where } from "firebase/firestore";
 import { db } from "./firebase";
 
 interface User {
@@ -136,6 +136,24 @@ export const getRequestById = async (requestId: string): Promise<Request | null>
   }
 };
 
+export const getRequestsByNomineeId = async (userId: string): Promise<Request[]> => {
+  try {
+    const requestsRef = collection(db, "requests");
+    const q = query(requestsRef, where("NomineeID", "==", userId));
+    const querySnapshot = await getDocs(q);
+    
+    const requests = querySnapshot.docs.map((doc) => ({
+      id: doc.id,
+      ...(doc.data() as Omit<Request, "id">)
+    }));
+    
+    return requests;
+  } catch (error) {
+    console.error("Error fetching requests for nominee:", error);
+    return [];
+  }
+};
+
 export const getChallenges = async () => {
   try {
     const querySnapshot = await getDocs(collection(db, "challenges"));
@@ -205,6 +223,28 @@ export const getDeedById = async (deedId: string): Promise<Deed | null> => {
   } catch (error) {
     console.error("Error fetching deed:", error);
     return null;
+  }
+};
+
+export const getDeedsByUserId = async (userId: string): Promise<Deed[]> => {
+  try {
+    const deedsRef = collection(db, "deeds");
+    const q = query(deedsRef, where("userID", "==", userId));
+    const querySnapshot = await getDocs(q);
+    
+    const deeds = querySnapshot.docs.map((doc) => {
+      const data = doc.data();
+      return {
+        id: doc.id,
+        ...data,
+        done_at: data.done_at.toDate(),
+      } as Deed;
+    });
+    
+    return deeds;
+  } catch (error) {
+    console.error("Error fetching deeds for user:", error);
+    return [];
   }
 };
 
