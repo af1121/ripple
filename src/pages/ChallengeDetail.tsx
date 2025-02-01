@@ -28,7 +28,7 @@ const MOCK_CHALLENGE = {
 };
 
 const MOCK_CHAIN = (() => {
-  const chain = [];
+  const chain: ChainNode[] = [];
   const cities = [
     { name: "New York", coords: { lat: 40.7128, lng: -74.0060 } },
     { name: "London", coords: { lat: 51.5074, lng: -0.1278 } },
@@ -36,39 +36,50 @@ const MOCK_CHAIN = (() => {
     { name: "Tokyo", coords: { lat: 35.6762, lng: 139.6503 } },
     { name: "Sydney", coords: { lat: -33.8688, lng: 151.2093 } },
     { name: "Berlin", coords: { lat: 52.5200, lng: 13.4050 } },
-    // ... previous cities ...
   ];
 
-  // Helper function to get random number between min and max (inclusive)
   const getRandomInt = (min: number, max: number) => 
     Math.floor(Math.random() * (max - min + 1)) + min;
 
-  // Generate 60 participants with unique cities
-  for (let i = 0; i < 60; i++) {
-    const date = new Date("2024-03-01T12:00:00Z");
-    date.setHours(date.getHours() + getRandomInt(0, 72));
+  // Create root participant
+  const rootDate = new Date("2024-03-01T12:00:00Z");
+  chain.push({
+    id: "1",
+    userName: "Challenge Creator",
+    createdAt: rootDate.toISOString(),
+    location: cities[0].coords,
+  });
 
-    const participant: ChainNode = {
-      id: (i + 1).toString(),
-      userName: `${cities[i % cities.length].name} Participant`,
-      createdAt: date.toISOString(),
-      location: cities[i % cities.length].coords,
-    };
+  let currentId = 1;
+  let currentLevel = [1]; // IDs of nodes at current level
 
-    // First participant is the root (no nominatedBy)
-    if (i > 0) {
-      // Choose a random previous participant as nominator
-      const possibleNominators = chain.slice(0, Math.max(1, Math.floor(i * 0.75)));
-      const nominator = possibleNominators[getRandomInt(0, possibleNominators.length - 1)];
+  // Generate 3-4 levels of participants
+  while (chain.length < 60 && currentLevel.length > 0) {
+    const nextLevel: number[] = [];
+    
+    for (const parentId of currentLevel) {
+      // Each parent nominates 2-4 participants
+      const numChildren = getRandomInt(2, 4);
       
-      // Only add nominatedBy if we found a valid nominator and they haven't nominated too many
-      const nominationCount = chain.filter(p => p.nominatedBy === nominator.id).length;
-      if (nominator && nominationCount < 3) {
-        participant.nominatedBy = nominator.id;
+      for (let i = 0; i < numChildren && chain.length < 60; i++) {
+        currentId++;
+        const date = new Date(rootDate);
+        date.setHours(date.getHours() + getRandomInt(1, 72));
+
+        const participant: ChainNode = {
+          id: currentId.toString(),
+          userName: `${cities[currentId % cities.length].name} Participant`,
+          createdAt: date.toISOString(),
+          location: cities[currentId % cities.length].coords,
+          nominatedBy: parentId.toString()
+        };
+
+        chain.push(participant);
+        nextLevel.push(currentId);
       }
     }
 
-    chain.push(participant);
+    currentLevel = nextLevel;
   }
 
   return chain;

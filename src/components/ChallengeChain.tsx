@@ -44,50 +44,77 @@ export function ChallengeChain({ participants }: { participants: ChainNode[] }) 
     // Configure the network
     const options: Options = {
       nodes: {
-        shape: "dot",
-        size: 20,
+        shape: "circularImage",
+        image: "https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y",
+        size: 25,
         font: {
           size: 14,
+          color: "#64748b",
+          face: "Inter, system-ui, sans-serif",
         },
         borderWidth: 2,
+        borderWidthSelected: 3,
         color: {
-          background: "#f97316",
-          border: "#ea580c",
+          background: "#fff",
+          border: "#f97316",
           highlight: {
-            background: "#fb923c",
+            background: "#fff",
             border: "#ea580c",
           },
+          hover: {
+            background: "#fff",
+            border: "#ea580c",
+          }
         },
+        shadow: {
+          enabled: true,
+          color: 'rgba(0,0,0,0.2)',
+          size: 8,
+          x: 0,
+          y: 4
+        }
       },
       edges: {
-        width: 2,
+        width: 1.5,
+        selectionWidth: 2,
         color: {
-          color: "#cbd5e1",
-          highlight: "#94a3b8",
+          color: "#e2e8f0",
+          highlight: "#f97316",
+          hover: "#f97316",
         },
         smooth: {
           enabled: true,
-          type: "continuous",
-          roundness: 0.5
+          type: "cubicBezier",
+          roundness: 0.5,
+          forceDirection: "vertical"
         },
       },
       physics: {
-        stabilization: true,
-        barnesHut: {
-          gravitationalConstant: -80000,
-          springConstant: 0.001,
-          springLength: 200,
-        },
+        enabled: false,
       },
       layout: {
         hierarchical: {
           enabled: true,
           direction: "UD",
           sortMethod: "directed",
-          nodeSpacing: 150,
-          levelSeparation: 150,
+          nodeSpacing: 100,
+          levelSeparation: 100,
+          treeSpacing: 100,
         },
       },
+      interaction: {
+        hover: true,
+        tooltipDelay: 200,
+        zoomView: true,
+        dragView: true,
+        hideEdgesOnDrag: true,
+        keyboard: false,
+        multiselect: false,
+      },
+      configure: false,
+      height: '400px',
+      autoResize: true,
+      scale: 1.2,
     };
 
     // Create the network
@@ -113,8 +140,8 @@ export function ChallengeChain({ participants }: { participants: ChainNode[] }) 
           <h2 className="text-xl font-semibold mb-4">Nomination Chain</h2>
           <div 
             ref={networkRef} 
-            className="w-full" 
-            style={{ height: "600px" }}
+            className="w-full overflow-hidden" 
+            style={{ height: "400px" }}
           />
         </div>
       </Card>
