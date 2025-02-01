@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Card } from "@/components/ui/card";
 import { ChallengeMap } from "@/components/ChallengeMap";
 import { Network, Edge, Node, Options } from "vis-network";
@@ -17,16 +17,40 @@ export interface ChainNode {
 
 export function ChallengeChain({ participants }: { participants: ChainNode[] }) {
   const networkRef = useRef<HTMLDivElement>(null);
+  const [collapsedNodes, setCollapsedNodes] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     if (!networkRef.current) return;
+
+    // Helper function to get all child nodes
+    const getChildNodes = (nodeId: string): string[] => {
+      const children: string[] = [];
+      participants
+        .filter(p => p.nominatedBy === nodeId)
+        .forEach(child => {
+          children.push(child.id);
+          if (!collapsedNodes.has(child.id)) {
+            children.push(...getChildNodes(child.id));
+          }
+        });
+      return children;
+    };
 
     // Create nodes and edges from participants
     const nodes = new DataSet<Node>(
       participants.map(p => ({
         id: p.id,
         label: p.userName,
-        title: `${p.userName}<br/>Joined: ${new Date(p.createdAt).toLocaleDateString()}`,
+        title: `
+          <div class="p-2">
+            <strong>${p.userName}</strong><br/>
+            Joined: ${new Date(p.createdAt).toLocaleDateString()}<br/>
+            ${p.location ? `Location: ${p.location.lat.toFixed(2)}, ${p.location.lng.toFixed(2)}` : 'No location'}<br/>
+            ${p.nominatedBy ? `Nominated by: Participant ${p.nominatedBy}` : 'Challenge Creator'}
+          </div>
+        `,
+        hidden: false,
+        group: collapsedNodes.has(p.nominatedBy || '') ? 'hidden' : 'visible',
       }))
     );
 
@@ -38,6 +62,7 @@ export function ChallengeChain({ participants }: { participants: ChainNode[] }) 
           from: p.nominatedBy,
           to: p.id,
           arrows: "to",
+          hidden: collapsedNodes.has(p.nominatedBy),
         }))
     );
 
@@ -51,6 +76,7 @@ export function ChallengeChain({ participants }: { participants: ChainNode[] }) 
           size: 14,
           color: "#64748b",
           face: "Inter, system-ui, sans-serif",
+          align: "left",
         },
         borderWidth: 2,
         borderWidthSelected: 3,
@@ -86,7 +112,7 @@ export function ChallengeChain({ participants }: { participants: ChainNode[] }) 
           enabled: true,
           type: "cubicBezier",
           roundness: 0.5,
-          forceDirection: "vertical"
+          forceDirection: "horizontal"
         },
       },
       physics: {
@@ -95,11 +121,13 @@ export function ChallengeChain({ participants }: { participants: ChainNode[] }) 
       layout: {
         hierarchical: {
           enabled: true,
-          direction: "UD",
+          direction: "LR",
           sortMethod: "directed",
-          nodeSpacing: 100,
-          levelSeparation: 100,
-          treeSpacing: 100,
+          nodeSpacing: 120,
+          levelSeparation: 150,
+          treeSpacing: 120,
+          parentCentralization: true,
+          blockShifting: true,
         },
       },
       interaction: {
@@ -111,10 +139,6 @@ export function ChallengeChain({ participants }: { participants: ChainNode[] }) 
         keyboard: false,
         multiselect: false,
       },
-      configure: false,
-      height: '400px',
-      autoResize: true,
-      scale: 1.2,
     };
 
     // Create the network
@@ -124,11 +148,39 @@ export function ChallengeChain({ participants }: { participants: ChainNode[] }) 
       options
     );
 
+    // Add double-click event handler for collapsing/expanding nodes
+    network.on("doubleClick", (params) => {
+      if (params.nodes.length > 0) {
+        const nodeId = params.nodes[0];
+        const childNodes = getChildNodes(nodeId);
+        
+        setCollapsedNodes(prev => {
+          const newCollapsed = new Set(prev);
+          if (newCollapsed.has(nodeId)) {
+            newCollapsed.delete(nodeId);
+          } else {
+            newCollapsed.add(nodeId);
+          }
+          return newCollapsed;
+        });
+
+        // Toggle visibility of child nodes and their edges
+        childNodes.forEach(childId => {
+          nodes.update({ id: childId, hidden: !collapsedNodes.has(nodeId) });
+          edges.get().forEach(edge => {
+            if (edge.from === nodeId || childNodes.includes(edge.from as string)) {
+              edges.update({ id: edge.id, hidden: !collapsedNodes.has(nodeId) });
+            }
+          });
+        });
+      }
+    });
+
     // Cleanup
     return () => {
       network.destroy();
     };
-  }, [participants]);
+  }, [participants, collapsedNodes]);
 
   return (
     <div className="space-y-8">
@@ -138,6 +190,9 @@ export function ChallengeChain({ participants }: { participants: ChainNode[] }) 
       <Card className="overflow-hidden">
         <div className="p-6">
           <h2 className="text-xl font-semibold mb-4">Nomination Chain</h2>
+          <p className="text-sm text-muted-foreground mb-4">
+            Double-click on a node to collapse/expand its children
+          </p>
           <div 
             ref={networkRef} 
             className="w-full overflow-hidden" 
