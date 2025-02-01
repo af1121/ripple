@@ -3,6 +3,9 @@ import { ChallengeCard } from "@/components/ChallengeCard";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Search } from "lucide-react";
+import { ImpactMetrics } from "@/components/ImpactMetrics"
+import { AddChallengeButton } from "@/components/AddChallengeButton"
+import { RequestsSection } from "@/components/RequestsSection"
 
 const MOCK_CHALLENGES = [
   {
@@ -42,14 +45,19 @@ export default function Index() {
   );
 
   return (
-    <div className="container py-8 animate-fade-up">
-      <div className="text-center mb-12">
-        <h1 className="text-4xl font-bold mb-4">Chain of Challenges</h1>
-        <p className="text-xl text-muted-foreground">
-          Join viral challenges and make a difference
-        </p>
-      </div>
+    <div className="container max-w-2xl mx-auto p-4">
+      <h1 className="text-3xl font-bold mb-6">
+        Hi, Username <span className="wave">👋</span>
+      </h1>
+      
+      <p className="text-muted-foreground mb-8 text-center">
+        Participate in challenges that make a difference and visualise your impact
+      </p>
 
+      <ImpactMetrics goodDeeds={596} />
+      
+      <RequestsSection />
+      
       <div className="relative max-w-xl mx-auto mb-8">
         <Input
           type="search"
@@ -70,6 +78,8 @@ export default function Index() {
       <div className="text-center mt-12">
         <Button size="lg">Load More Challenges</Button>
       </div>
+
+      <AddChallengeButton />
     </div>
   );
 }

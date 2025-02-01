@@ -5,13 +5,18 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 
+interface ParticipationFormData {
+  userName: string;
+  mediaUrl: string;
+  location: {
+    lat: number;
+    lng: number;
+  };
+}
+
 interface ParticipationFormProps {
   challengeId: string;
-  onSubmit: (data: {
-    userName: string;
-    mediaUrl: string;
-    location: { lat: number; lng: number };
-  }) => void;
+  onSubmit: (data: ParticipationFormData) => void;
 }
 
 export function ParticipationForm({ challengeId, onSubmit }: ParticipationFormProps) {
@@ -23,26 +28,14 @@ export function ParticipationForm({ challengeId, onSubmit }: ParticipationFormPr
     e.preventDefault();
     setLoading(true);
 
-    try {
-      // Get user's location
-      const position = await new Promise<GeolocationPosition>((resolve, reject) => {
-        navigator.geolocation.getCurrentPosition(resolve, reject);
-      });
-
-      const location = {
-        lat: position.coords.latitude,
-        lng: position.coords.longitude,
-      };
-
-      await onSubmit({ userName, mediaUrl, location });
+    // Simulate API call
+    setTimeout(() => {
+      onSubmit({ userName, mediaUrl, location: { lat: 51.5074, lng: -0.1278 } });
       toast.success("Successfully joined the challenge!");
       setUserName("");
       setMediaUrl("");
-    } catch (error) {
-      toast.error("Failed to submit participation. Please try again.");
-    } finally {
       setLoading(false);
-    }
+    }, 1000);
   };
 
   return (
