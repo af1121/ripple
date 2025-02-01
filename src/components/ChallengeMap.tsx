@@ -84,15 +84,18 @@ export function ChallengeMap({ participants }: ChallengeMapProps) {
       }
     };
 
-    if (window.google) {
-      loadMap();
-    } else {
-      const script = document.createElement("script");
-      script.src = `https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY`;
-      script.async = true;
-      script.defer = true;
-      script.addEventListener("load", loadMap);
-      document.head.appendChild(script);
+    // Only attempt to load the map if the container exists
+    if (mapRef.current) {
+      if (window.google) {
+        loadMap();
+      } else {
+        const script = document.createElement("script");
+        script.src = `https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY`;
+        script.async = true;
+        script.defer = true;
+        script.onload = loadMap;
+        document.head.appendChild(script);
+      }
     }
   }, [participants]);
 
