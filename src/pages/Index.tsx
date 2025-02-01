@@ -7,11 +7,15 @@ import { ImpactMetrics } from "@/components/ImpactMetrics";
 import { AddChallengeButton } from "@/components/AddChallengeButton";
 import { RequestsSection } from "@/components/RequestsSection";
 import { getUserById, type User } from "@/firebase_functions";
+import { collection, getDocs } from "firebase/firestore";
+import { db } from "@/firebase";    
 
+const MOCK_USER_ID = "DbDAsedHMR5g8h8ohdas";
 
 const MOCK_CHALLENGES = [
   {
     id: "1",
+
     title: "30 Days of Fitness",
     description:
       "Join the fitness revolution! Complete 30 days of progressive workouts.",
@@ -46,36 +50,17 @@ const MOCK_CHALLENGES = [
 
 export default function Index() {
   const [searchQuery, setSearchQuery] = useState("");
-  const [users, setUsers] = useState<User[]>([]);
   const [user, setUser] = useState<User | null>(null);
 
   const filteredChallenges = MOCK_CHALLENGES.filter((challenge) =>
     challenge.title.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  useEffect(() => {
-    const fetchUsers = async () => {
-      try {
-        const querySnapshot = await getDocs(collection(db, "users"));
-        const usersData = querySnapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...(doc.data() as Omit<User, "id">),
-        }));
-        setUsers(usersData);
-        console.log("Fetched users:", usersData);
-      } catch (error) {
-        console.error("Error fetching users:", error);
-      }
-    };
-
-    fetchUsers();
-    console.log(users);
-  }, []);
+ 
 
   useEffect(() => {
     const fetchUser = async () => {
-      const userId = "your-user-id"; // Replace with actual user ID
-      const userData = await getUserById(userId);
+      const userData = await getUserById(MOCK_USER_ID);
       if (userData) {
         setUser(userData);
         console.log("Found user:", userData);
