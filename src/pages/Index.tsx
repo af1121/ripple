@@ -1,13 +1,24 @@
-import { ImpactMetrics } from "@/components/ImpactMetrics"
-import { AddChallengeButton } from "@/components/AddChallengeButton"
-import { RequestsSection } from "@/components/RequestsSection"
+import { useState, useEffect } from "react";
+import { ChallengeCard } from "@/components/ChallengeCard";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Search } from "lucide-react";
+import { ImpactMetrics } from "@/components/ImpactMetrics";
+import { AddChallengeButton } from "@/components/AddChallengeButton";
+import { RequestsSection } from "@/components/RequestsSection";
+import { getUserById, type User } from "@/firebase_functions";
+import { collection, getDocs } from "firebase/firestore";
+import { db } from "@/firebase";    
 import { Card } from "@/components/ui/card"
 import { Link } from "react-router-dom"
 import { CalendarIcon, Users } from "lucide-react"
 
+const MOCK_USER_ID = "DbDAsedHMR5g8h8ohdas";
+
 const MOCK_ACTIVE_CHALLENGES = [
   {
     id: "1",
+
     title: "30 Days of Fitness",
     startDate: "2024-03-01",
     endDate: "2024-03-30",
@@ -17,14 +28,6 @@ const MOCK_ACTIVE_CHALLENGES = [
   {
     id: "2",
     title: "Plant a Tree Challenge",
-    startDate: "2024-03-15",
-    endDate: "2024-04-15",
-    participants: 45,
-    progress: 30,
-  },
-];
-
-export default function Index() {
   return (
     <>
       <header className="border-b">
