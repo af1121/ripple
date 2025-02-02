@@ -61,15 +61,15 @@ const MOCK_COMPLETED_CHALLENGES = [
 
 
 export default function Index() {
-  const [user, setUser] = useState<UserType | null>(null);
+  const [user, setUser] = useState<User | null>(null);
   const [requests, setRequests] = useState<Request[]>([]);
   const [totalDeeds, setTotalDeeds] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const fetchUser = async () => {
+    const fetchUser = async () => { 
       try {
-        const userData: UserType = await getUserById(MOCK_USER_ID);
+        const userData: User = await getUserById(MOCK_USER_ID);
         if (userData) {
           setUser(userData);
           console.log("Setting user state to:", userData); // Debug log
