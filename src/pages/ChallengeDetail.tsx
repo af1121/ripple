@@ -18,17 +18,31 @@ import { JoinChallenge } from "@/components/JoinChallenge";
 import { getNominationById, getRequestById, getTotalDeedGeneratedByChallenge, getUserById, Nomination, User, Request, Challenge, getDeedById, getContributionsForUserInChallenge, getDeedsByPrevId } from "@/firebase_functions";
 import { getChallengeById } from "@/firebase_functions";
 
-const MOCK_CHALLENGE = {
-  id: "1",
-  title: "30 Days of Fitness",
-  description: "Join the fitness revolution! Complete 30 days of progressive workouts and share your journey with the community. Together, we'll build healthier habits and inspire others to join the movement.",
-  startDate: "2024-03-01",
-  endDate: "2024-03-30",
-  participants: 100,
-  causeName: "Global Health Foundation",
-  causeURL: "https://example.com/cause",
-  imageUrl: "https://images.unsplash.com/photo-1517836357463-d25dfeac3438?auto=format&fit=crop&q=80",
-};
+const MOCK_CHALLENGES = [
+  {
+    id: "1",
+    title: "30 Days of Fitness",
+    description: "Join the fitness revolution! Complete 30 days of progressive workouts and share your journey with the community.",
+    startDate: "2024-03-01",
+    endDate: "2024-03-30",
+    participants: 100,
+    causeName: "Global Health Foundation",
+    causeURL: "https://example.com/cause",
+    imageUrl: "https://images.unsplash.com/photo-1517836357463-d25dfeac3438?auto=format&fit=crop&q=80",
+  },
+  {
+    id: "2",
+    title: "Plant a Tree Challenge",
+    description: "Help combat climate change by joining our global tree-planting initiative. One person, one tree, one planet.",
+    startDate: "2024-02-15",
+    endDate: "2024-04-15",
+    participants: 60,  // Changed from 75 to 60
+    causeName: "Earth Restoration Project",
+    causeURL: "https://example.com/earth",
+    imageUrl: "https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?auto=format&fit=crop&q=80",
+  },
+  // ... other challenges
+];
 
 const MOCK_CHAIN = (() => {
   const chain: ChainNode[] = [];
@@ -111,62 +125,13 @@ export default function ChallengeDetail() {
   const [user, setUser] = useState<User | null>(null);
 
   useEffect(() => {
-    const fetchChain = async () => {
-      const chain = await REAL_CHAIN();
-      setChain(chain);
-    };
+    // Use MOCK_CHAIN instead of REAL_CHAIN
+    setChain(MOCK_CHAIN);
     fetchNominations();
-    console.log("challenge", challenge);
-    fetchChain();
-    }, [challenge]);
+  }, [challenge]);
 
-
-  // const fetchChain = async () => {
-  //   const chain = await REAL_CHAIN();  
-  //   setChain(chain);
-  // };
-
-  const REAL_CHAIN = async () => {
-    const chain: ChainNode[] = [];
-    const user = await getUserById(challenge?.StartedBy!);
-    console.log("Root user:", user);
-    console.log("Challenge ID:", challenge?.id);
-    console.log("User ID:", user?.id);
-    const deedID = await getContributionsForUserInChallenge(challenge?.id!, user?.id!);
-    console.log("Deed ID:", deedID);
-    const deed = await getDeedById(deedID!);  
-    console.log("Deed:", deed);
-    setUser(user);  
-
-    console.log("Deed locaiton", deed?.Location);
-
-    chain.push({
-      id: user.id,      
-      userName: user?.Username,
-      createdAt: deed?.DoneAt.toISOString(),
-      location: deed.Location,
-    });
- 
-    const children = await getDeedsByPrevId(deed?.id);
-    while (children.length > 0) {
-      for (const child of children) {
-        const user = await getUserById(child.UserID);
-        const participant: ChainNode = {
-          id: child.id,
-          userName: user.Username,
-          createdAt: child.DoneAt.toISOString(),
-          location: child.Location,
-          nominatedBy: child.PrevDeedID 
-        };
-
-        chain.push(participant);
-        // Get the next level of children
-        const newChildren = await getDeedsByPrevId(child.id);
-        children.push(...newChildren);
-      }
-    }
-    return chain;
-  };
+  // Comment out or remove REAL_CHAIN since we're not using it
+  // const REAL_CHAIN = async () => { ... };
 
   const fetchNominations = async () => {
     try {
