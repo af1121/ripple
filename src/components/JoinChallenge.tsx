@@ -7,13 +7,21 @@ import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import { ImagePlus, MapPin } from "lucide-react";
 import { createShareMessage, shareViaSMS } from "@/lib/shareUtils";
-import { Challenge, getUserById } from "@/firebase_functions";
+import { Challenge, createDeed, getUserById } from "@/firebase_functions";
+import { storage } from "@/firebase";
+import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
+
+interface Location {
+  lat: number;
+  lng: number;
+}
 
 interface JoinChallengeProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   challenge: Challenge | null;
   userId: string;
+  prevDeedId: string | null;
   // challengeTitle: string;
   // causeName?: string;
   // username: string;
@@ -28,6 +36,7 @@ export function JoinChallenge({
   onOpenChange, 
   challenge,
   userId,
+  prevDeedId,
   // username 
 }: JoinChallengeProps) {
   const [loading, setLoading] = useState(false);
@@ -35,7 +44,7 @@ export function JoinChallenge({
   const [image, setImage] = useState<File | null>(null);
   const [description, setDescription] = useState("");
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
-  const [location, setLocation] = useState<{lat: number; lng: number} | null>(null);
+  const [location, setLocation] = useState<Location | null>(null);
   const [locationError, setLocationError] = useState<string>("");
   const [isCollectingLocation, setIsCollectingLocation] = useState(false);
   const [username, setUsername] = useState("");
@@ -92,6 +101,25 @@ export function JoinChallenge({
     });
   };
 
+  const uploadImage = async (file: File): Promise<string> => {
+    if (!userId || !challenge) return "";
+
+    // Create a unique filename using userId, challengeId and timestamp
+    const fileName = `deeds/${userId}/${challenge.id}/${Date.now()}_${file.name}`;
+    const storageRef = ref(storage, fileName);
+
+    try {
+      // Upload the file
+      const snapshot = await uploadBytes(storageRef, file);
+      // Get the download URL
+      const downloadURL = await getDownloadURL(snapshot.ref);
+      return downloadURL;
+    } catch (error) {
+      console.error("Error uploading image:", error);
+      throw new Error("Failed to upload image");
+    }
+  };
+
   const handleGetLocation = () => {
     setIsCollectingLocation(true);
     navigator.geolocation.getCurrentPosition(
@@ -137,19 +165,28 @@ export function JoinChallenge({
 
     const validNominees = nominees.filter(n => n.phone);
 
-    const data = {
-      UserID: userId,
-      ChallengeID: challenge?.id,
-      image,  
-      description,
-      nominees: validNominees,
-      location,
-    };
+    const imageUrl = await uploadImage(image);
 
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      console.log("Join challenge data:", data);
+
+      const data = {
+        ChallengeID: challenge?.id,
+        Comment: description,
+        DoneAt: new Date(),
+        Image: imageUrl || "",  
+        Location: location,
+        NumContributions: 1,
+        PrevDeedID: prevDeedId,
+        NextDeedID: null,
+        UserID: userId,
+        // nominees: validNominees,
+      };
+
+      const deed = await createDeed(data);
+                                                              
+      if (!deed) {
+        throw new Error("Failed to create deed");
+      }                                                               
       
       // Share with nominees
       await handleShare(validNominees);

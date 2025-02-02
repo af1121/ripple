@@ -51,10 +51,15 @@ interface Deed {
   Image: string;
   Comment: string;
   DoneAt: Date;
-  Location: string;
+  Location: Location;
   PrevDeedID: string;
   NextDeedID: string;
   NumContributions: number;
+}
+
+interface Location {
+  lat: number;
+  lng: number;
 }
 
 interface RequestDetails {

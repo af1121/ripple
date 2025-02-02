@@ -247,6 +247,7 @@ export default function ChallengeDetail() {
         onOpenChange={setShowJoinDialog}
         challenge={challenge || null}
         userId={request?.NomineeID}
+        prevDeedId={nominator?.id}
         // username={username}
       />
     </div>
