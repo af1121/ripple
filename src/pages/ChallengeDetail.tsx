@@ -14,6 +14,7 @@ import {
 import { Link } from "react-router-dom";
 import { ChallengeMap } from "@/components/ChallengeMap";
 import { ChallengeChain, ChainNode } from "@/components/ChallengeChain";
+import { JoinChallenge } from "@/components/JoinChallenge";
 
 const MOCK_CHALLENGE = {
   id: "1",
@@ -21,7 +22,7 @@ const MOCK_CHALLENGE = {
   description: "Join the fitness revolution! Complete 30 days of progressive workouts and share your journey with the community. Together, we'll build healthier habits and inspire others to join the movement.",
   startDate: "2024-03-01",
   endDate: "2024-03-30",
-  participants: 60,
+  participants: 100,
   charityName: "Global Health Foundation",
   charityUrl: "https://example.com/charity",
   imageUrl: "https://images.unsplash.com/photo-1517836357463-d25dfeac3438?auto=format&fit=crop&q=80",
@@ -36,6 +37,17 @@ const MOCK_CHAIN = (() => {
     { name: "Tokyo", coords: { lat: 35.6762, lng: 139.6503 } },
     { name: "Sydney", coords: { lat: -33.8688, lng: 151.2093 } },
     { name: "Berlin", coords: { lat: 52.5200, lng: 13.4050 } },
+    { name: "Moscow", coords: { lat: 55.7558, lng: 37.6173 } },
+    { name: "Singapore", coords: { lat: 1.3521, lng: 103.8198 } },
+    { name: "Buenos Aires", coords: { lat: -34.6037, lng: -58.3816 } },
+    { name: "Nairobi", coords: { lat: -1.2921, lng: 36.8219 } },
+    { name: "Cape Town", coords: { lat: -33.9249, lng: 18.4241 } },
+    { name: "Rio de Janeiro", coords: { lat: -22.9068, lng: -43.1729 } },
+    { name: "Barcelona", coords: { lat: 41.3888, lng: 2.1589 } },
+    { name: "Rome", coords: { lat: 41.9028, lng: 12.4964 } },
+    { name: "Madrid", coords: { lat: 40.4637, lng: -3.7492 } },
+    { name: "Amsterdam", coords: { lat: 52.3702, lng: 4.8952 } },
+    { name: "Vienna", coords: { lat: 48.2082, lng: 16.3738 } },
   ];
 
   const getRandomInt = (min: number, max: number) => 
@@ -54,14 +66,14 @@ const MOCK_CHAIN = (() => {
   let currentLevel = [1]; // IDs of nodes at current level
 
   // Generate 3-4 levels of participants
-  while (chain.length < 60 && currentLevel.length > 0) {
+  while (chain.length < 100 && currentLevel.length > 0) {
     const nextLevel: number[] = [];
     
     for (const parentId of currentLevel) {
       // Each parent nominates 2-4 participants
       const numChildren = getRandomInt(2, 4);
       
-      for (let i = 0; i < numChildren && chain.length < 60; i++) {
+      for (let i = 0; i < numChildren && chain.length < 100; i++) {
         currentId++;
         const date = new Date(rootDate);
         date.setHours(date.getHours() + getRandomInt(1, 72));
@@ -88,6 +100,10 @@ const MOCK_CHAIN = (() => {
 export default function ChallengeDetail() {
   const { id } = useParams();
   const [showParticipationForm, setShowParticipationForm] = useState(false);
+  const [showJoinDialog, setShowJoinDialog] = useState(false);
+
+  // You would typically get these from your auth context/state
+  const username = "John Doe"; // Replace with actual username
 
   const handleParticipation = async (data: ParticipationFormData) => {
     console.log("Participation data:", data);
@@ -142,7 +158,7 @@ export default function ChallengeDetail() {
               <div className="flex gap-4">
                 <Button
                   size="lg"
-                  onClick={() => setShowParticipationForm(true)}
+                  onClick={() => setShowJoinDialog(true)}
                   className="flex-1"
                 >
                   Join Challenge
@@ -179,12 +195,21 @@ export default function ChallengeDetail() {
                 className="w-full"
                 onClick={() => window.open(MOCK_CHALLENGE.charityUrl, "_blank")}
               >
-                Learn More
+                Donate Now
               </Button>
             </Card>
           )}
         </div>
       </div>
+
+      <JoinChallenge
+        open={showJoinDialog}
+        onOpenChange={setShowJoinDialog}
+        challengeId={id!}
+        challengeTitle={MOCK_CHALLENGE.title}
+        charityName={MOCK_CHALLENGE.charityName}
+        username={username}
+      />
     </div>
   );
 }
