@@ -553,4 +553,31 @@ export const getRequestsList = async (
   }
 };
 
+export const getContributionsForUserInChallenge = async (
+  challengeId: string,
+  userId: string
+): Promise<number> => {
+  try {
+    // Get the deed matching the challenge and user
+    const deedsRef = collection(db, "deeds");
+    const q = query(
+      deedsRef,
+      where("ChallengeID", "==", challengeId),
+      where("UserID", "==", userId)
+    );
+    const deedSnap = await getDocs(q);
+
+    if (deedSnap.empty) {
+      return 0;
+    }
+
+    // Return the NumContributions from the first matching deed
+    const deed = deedSnap.docs[0].data();
+    return deed.NumContributions || 0;
+  } catch (error) {
+    console.error("Error getting contributions for user in challenge:", error);
+    return 0;
+  }
+};
+
 export type { User, Nomination, Request, Challenge, Deed };
