@@ -112,17 +112,16 @@ export default function ChallengeDetail() {
 
   useEffect(() => {
     const fetchChain = async () => {
+      await fetchNominations();
+      console.log("challenge::::::", challenge);
       const chain = await REAL_CHAIN();
       setChain(chain);
     };
-    fetchNominations();
-    console.log("challenge", challenge);
     fetchChain();
-    }, [challenge]);
-
+  }, []);
 
   // const fetchChain = async () => {
-  //   const chain = await REAL_CHAIN();  
+  //   const chain = await REAL_CHAIN();
   //   setChain(chain);
   // };
 
@@ -130,17 +129,12 @@ export default function ChallengeDetail() {
     const chain: ChainNode[] = [];
     const user = await getUserById(challenge?.StartedBy!);
     console.log("Root user:", user);
-    console.log("Challenge ID:", challenge?.id);
-    console.log("User ID:", user?.id);
     const deedID = await getContributionsForUserInChallenge(challenge?.id!, user?.id!);
-    console.log("Deed ID:", deedID);
-    const deed = await getDeedById(deedID!);  
-    console.log("Deed:", deed);
+    const deed = await getDeedById(deedID!);
     setUser(user);  
+    
 
-    console.log("Deed locaiton", deed?.Location);
-
-    chain.push({
+    chain.push({  
       id: user.id,      
       userName: user?.Username,
       createdAt: deed?.DoneAt.toISOString(),
@@ -170,15 +164,13 @@ export default function ChallengeDetail() {
 
   const fetchNominations = async () => {
     try {
-      console.log("requestId::::::::", requestId);
       const request = await getRequestById(requestId!);
-      console.log("request---------", request);
       if (request) {
         setRequest(request);
         const nomination = await getNominationById(request.NominationID);
         console.log("Nomination:", nomination);
         if (nomination) {
-          setNomination(nomination);  
+          setNomination(nomination); 
           const challenge = await getChallengeById(nomination.ChallengeID);
           console.log("Challenge:", challenge);
           if (challenge) {
@@ -189,7 +181,7 @@ export default function ChallengeDetail() {
             if (nominator) {
               setNominator(nominator);
               console.log("Nominator:", nominator);
-            } 
+            }
 
             if (totalContributions) {
               setTotalContributions(totalContributions);
