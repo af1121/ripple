@@ -4,6 +4,7 @@ import { JoinChallenge } from '../components/JoinChallenge';
 import { MOCK_CHALLENGES } from '@/data/mockData';
 import { Card } from '@/components/ui/card';
 import { Link } from 'react-router-dom';
+import { MOCK_USER_ID } from './Index';
 
 export default function ChallengeList() {
   const [showAddDialog, setShowAddDialog] = useState(false);
@@ -54,7 +55,7 @@ export default function ChallengeList() {
           challenge={newChallenge}
           challengeTitle={newChallenge.title}
           causeName={newChallenge.causeName}
-          username="John Doe"
+          userId={MOCK_USER_ID}
         />
       )}
     </div>

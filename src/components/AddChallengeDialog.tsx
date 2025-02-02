@@ -64,23 +64,23 @@ export function AddChallengeDialog({
         imageUrl = await uploadImage(image);
       }
         
-    const data = {
-      Title: formData.get("title") as string,
-      Description: formData.get("description") as string,
-      CoverImage: imageUrl || "", // Use the preview URL or empty string
-      StartedBy: MOCK_USER_ID,
-      CauseName: formData.get("causeName") as string || null,
-      CauseURL: formData.get("causeURL") as string || null,
-      StartedAt: new Date(),
-    };
-
-    console.log("data", data);
+      const data = {
+        Title: formData.get("title") as string,
+        Description: formData.get("description") as string,
+        CoverImage: imageUrl || "",
+        StartedBy: MOCK_USER_ID,
+        CauseName: formData.get("causeName") as string || null,
+        CauseURL: formData.get("causeURL") as string || null,
+        StartedAt: new Date(),
+      };
 
       const challenge = await createChallenge(data);
       if (challenge) {  
         toast.success("Challenge created successfully!");
         setLoading(false);
         onOpenChange(false);
+        // Call the callback with challenge details
+        onChallengeCreated(challenge.id, data.Title, data.CauseName || undefined);
       } else {
         toast.error("Failed to create challenge");
         setLoading(false);

@@ -35,7 +35,9 @@ interface NomineeInput {
 export function JoinChallenge({ 
   open, 
   onOpenChange, 
-  challenge,
+  challengeId,
+  challengeTitle,
+  causeName,
   userId,
   prevUserId,
   nomination,
@@ -88,11 +90,11 @@ export function JoinChallenge({
   };
 
   const handleShare = async (nominees: NomineeInput[]) => {
-    const challengeUrl = `${window.location.origin}/challenge/${challenge?.id}`;
+    const challengeUrl = `${window.location.origin}/challenge/${challengeId}`;
     const message = createShareMessage({
       username,
-      challengeTitle: challenge?.Title || "",
-      causeName: challenge?.CauseName || "",
+      challengeTitle,
+      causeName,
       challengeUrl,
     });
 
@@ -104,10 +106,10 @@ export function JoinChallenge({
   };
 
   const uploadImage = async (file: File): Promise<string> => {
-    if (!userId || !challenge) return "";
+    if (!userId || !challengeId) return "";
 
     // Create a unique filename using userId, challengeId and timestamp
-    const fileName = `deeds/${userId}/${challenge.id}/${Date.now()}_${file.name}`;
+    const fileName = `deeds/${userId}/${challengeId}/${Date.now()}_${file.name}`;
     const storageRef = ref(storage, fileName);
 
     try {
@@ -187,7 +189,7 @@ export function JoinChallenge({
     try {
 
       const data = {
-        ChallengeID: challenge?.id,
+        ChallengeID: challengeId,
         Comment: description,
         DoneAt: new Date(),
         Image: imageUrl || "",  
