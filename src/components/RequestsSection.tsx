@@ -180,7 +180,7 @@ export function RequestsSection({ requests }: { requests: Request[] }) {
               <div className="flex items-center gap-4">
                 <div className="h-12 w-12 bg-muted rounded-full flex items-center justify-center">
                   {(() => {
-                    const Icon = IconMap[nomination.Icon];
+                    const Icon = IconMap[nomination .Icon];
                     return <Icon className="h-6 w-6 text-muted-foreground" />;
                   })()}
                 </div>

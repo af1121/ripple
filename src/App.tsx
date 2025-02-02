@@ -19,7 +19,7 @@ const App = () => (
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Index />} />
-          <Route path="/challenge/:id" element={<ChallengeDetail />} />
+          <Route path="/challenge/:requestId" element={<ChallengeDetail />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>

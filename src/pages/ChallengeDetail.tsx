@@ -101,6 +101,7 @@ const MOCK_CHAIN = (() => {
 
 export default function ChallengeDetail() {
   const { requestId } = useParams();
+  console.log("Request ID:", requestId);
   const [challenge, setChallenge] = useState<Challenge | null>(null);
   const [request, setRequest] = useState<Request | null>(null);
   const [nomination, setNomination] = useState<Nomination>(null);
@@ -119,7 +120,6 @@ export default function ChallengeDetail() {
             const challenge = await getChallengeById(nomination.ChallengeID);
             if (challenge) {
               setChallenge(challenge);
-              console.log("Challenge image:", challenge?.CoverImage);
               const nominator = await getUserById(nomination.Nominator);
               const totalContributions =
                 await getTotalDeedGeneratedByChallenge(challenge?.id);
