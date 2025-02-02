@@ -1,69 +1,37 @@
-# Welcome to your Lovable project
+Inspiration
 
-## Project info
+Our inspiration came from the ALS Ice Bucket Challenge from a few years ago. It was fascinating as it started with 2 individuals who wanted to raise awareness for a great cause they were passionate about. They nominated a few of their friends to do it and within a short period of time, this snowballed into a viral global trend. As a result, celebrities, athletes, world leaders, and millions of others took part. Our interest lies in this chain of nominations that led to this rapid spread. We want to replicate this more and visualise it. Inspired by this ripping effect, we explore this idea for our hackathon project.
 
-**URL**: https://lovable.dev/projects/e98ae581-0c18-4b34-bf95-d38ffe216d31
+What it does
 
-## How can I edit this code?
+Users of the app are encouraged to do a good deed: pay for someone’s coffee, help the elderly, make a donation to charity, everything, and anything that promotes good. Let’s take the example that you helped Mrs. Lee cross the street one day—that’s a ripple. You log your ripple on the app and at the same time, send out waves (or nominations) to a few friends to do the same! They get your requests, mark their ripples as complete, and then send their waves out to another three friends. Sooner or later, you have a current—a chain of good deeds branching out from the one simple act of kindness you did initially. As a bonus, you can link your ripple to a charitable cause that you are passionate about to further compound the positive effect!
 
-There are several ways of editing your application.
+How we built it
 
-**Use Lovable**
+We built our app using React with TypeScript for the frontend and Firebase for the backend. This allowed us to move quickly without needing a dedicated backend.
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/e98ae581-0c18-4b34-bf95-d38ffe216d31) and start prompting.
+Frontend: React made it easy to create a smooth, interactive UI, and TypeScript helped catch errors early. We designed the layout in Figma to ensure a clean and user-friendly experience.
+Backend: We used Firebase Firestore to store challenges, Firebase Authentication for user sign-in, and Firebase Storage for image uploads. Firebase Dynamic Links made it easy to share and track challenges.
+How It Works: Users create or join challenges, log their good deeds, and nominate others. The app tracks the entire participation chain in real-time using Firestore, allowing us to visualize how acts of kindness spread.
+Challenges We Ran Into
 
-Changes made via Lovable will be committed automatically to this repo.
+Tracking Nominations: Ensuring the app correctly mapped who nominated whom required careful Firestore structuring to avoid data inconsistencies.
+Seamless Sharing: We fine-tuned Firebase Dynamic Links to make it easy for users to share and track participation from external platforms.
+Database Design: Since Firestore is a NoSQL database, we had to structure data efficiently to avoid too many joins while keeping queries fast and cost-effective.
+Splitting Workload: With limited time, we had to divide tasks smartly—some focused on the UI/UX, while others handled database logic and integrations.
+Accomplishments That We're Proud Of
 
-**Use your preferred IDE**
+A Fully Working App – We took an idea from concept to reality within a short timeframe.
+A Unique Idea with Real Impact – We built a platform that encourages positive actions and lets users visualize their influence.
+A Smooth and Scalable System – Using Firebase, we ensured real-time updates and easy scalability with minimal backend management.
+What We Learned
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+The Importance of Clear Communication – Constant team discussions helped align our vision and problem-solving approach.
+Planning is Key – Sketching out user flows and database structures early saved us from costly redesigns later.
+Optimizing Database Design – Structuring Firestore properly made tracking challenges and nominations more efficient.
+What’s Next for Ripple?
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-Follow these steps:
-
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
-```
-
-**Edit a file directly in GitHub**
-
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
-
-**Use GitHub Codespaces**
-
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
-
-## What technologies are used for this project?
-
-This project is built with .
-
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
-
-## How can I deploy this project?
-
-Simply open [Lovable](https://lovable.dev/projects/e98ae581-0c18-4b34-bf95-d38ffe216d31) and click on Share -> Publish.
-
-## I want to use a custom domain - is that possible?
-
-We don't support custom domains (yet). If you want to deploy your project under your own domain then we recommend using Netlify. Visit our docs for more details: [Custom domains](https://docs.lovable.dev/tips-tricks/custom-domain/)
+Deploy the app to the web so people can start using it beyond the hackathon.
+Refine the UI and user experience based on feedback.
+Expand sharing features to make nominations even more seamless.
+Explore new features like leaderboards and deeper impact tracking.
