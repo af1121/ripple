@@ -115,11 +115,14 @@ export default function ChallengeDetail() {
       const chain = await REAL_CHAIN();
       setChain(chain);
     };
+    fetchNominations();
+    console.log("challenge", challenge);
     fetchChain();
-  }, [challenge]);
+    }, [challenge]);
+
 
   // const fetchChain = async () => {
-  //   const chain = await REAL_CHAIN();
+  //   const chain = await REAL_CHAIN();  
   //   setChain(chain);
   // };
 
@@ -135,7 +138,7 @@ export default function ChallengeDetail() {
     console.log("Deed:", deed);
     setUser(user);  
 
-
+    console.log("Deed locaiton", deed?.Location);
 
     chain.push({
       id: user.id,      
@@ -164,44 +167,80 @@ export default function ChallengeDetail() {
     }
     return chain;
   };
- 
-  useEffect(() => { 
-    const fetchNominations = async () => {
-      try {
-        const request = await getRequestById(requestId!);
-        if (request) {
-          setRequest(request);
-          const nomination = await getNominationById(request.NominationID);
-          console.log("Nomination:", nomination);
-          if (nomination) {
-            setNomination(nomination); 
-            const challenge = await getChallengeById(nomination.ChallengeID);
-            console.log("Challenge:", challenge);
-            if (challenge) {
-              setChallenge(challenge);
-              const nominator = await getUserById(nomination.Nominator);
-              const totalContributions =
-                await getTotalDeedGeneratedByChallenge(challenge?.id);
-              if (nominator) {
-                setNominator(nominator);
-                console.log("Nominator:", nominator);
-              }
 
-              if (totalContributions) {
-                setTotalContributions(totalContributions);
-                console.log("Total contributions:", totalContributions);
-              }
+  const fetchNominations = async () => {
+    try {
+      console.log("requestId::::::::", requestId);
+      const request = await getRequestById(requestId!);
+      console.log("request---------", request);
+      if (request) {
+        setRequest(request);
+        const nomination = await getNominationById(request.NominationID);
+        console.log("Nomination:", nomination);
+        if (nomination) {
+          setNomination(nomination);  
+          const challenge = await getChallengeById(nomination.ChallengeID);
+          console.log("Challenge:", challenge);
+          if (challenge) {
+            setChallenge(challenge);
+            const nominator = await getUserById(nomination.Nominator);
+            const totalContributions =
+              await getTotalDeedGeneratedByChallenge(challenge?.id);
+            if (nominator) {
+              setNominator(nominator);
+              console.log("Nominator:", nominator);
+            } 
+
+            if (totalContributions) {
+              setTotalContributions(totalContributions);
+              console.log("Total contributions:", totalContributions);
             }
           }
         }
-
-      } catch (error) {
-        console.error("Error fetching requests and nominations:", error);
       }
-    };
 
-    fetchNominations();
-  }, []); 
+    } catch (error) {
+      console.error("Error fetching requests and nominations:", error);
+    }
+  };
+ 
+  // useEffect(() => { 
+  //   const fetchNominations = async () => {
+  //     try {
+  //       const request = await getRequestById(requestId!);
+  //       if (request) {
+  //         setRequest(request);
+  //         const nomination = await getNominationById(request.NominationID);
+  //         console.log("Nomination:", nomination);
+  //         if (nomination) {
+  //           setNomination(nomination); 
+  //           const challenge = await getChallengeById(nomination.ChallengeID);
+  //           console.log("Challenge:", challenge);
+  //           if (challenge) {
+  //             setChallenge(challenge);
+  //             const nominator = await getUserById(nomination.Nominator);
+  //             const totalContributions =
+  //               await getTotalDeedGeneratedByChallenge(challenge?.id);
+  //             if (nominator) {
+  //               setNominator(nominator);
+  //               console.log("Nominator:", nominator);
+  //             }
+
+  //             if (totalContributions) {
+  //               setTotalContributions(totalContributions);
+  //               console.log("Total contributions:", totalContributions);
+  //             }
+  //           }
+  //         }
+  //       }
+
+  //     } catch (error) {
+  //       console.error("Error fetching requests and nominations:", error);
+  //     }
+  //   };
+
+  //   fetchNominations();
+  // }, []); 
 
   const [showParticipationForm, setShowParticipationForm] = useState(false);
   const [showJoinDialog, setShowJoinDialog] = useState(false);
