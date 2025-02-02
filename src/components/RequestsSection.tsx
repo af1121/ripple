@@ -61,7 +61,7 @@ const timeLeft = (date: Date) => {
   return `${daysLeft}d ${hoursLeft}h ${minutesLeft}m`;
 };
 
-const MOCK_USER_ID = "ThKZKgw7aa3tel9KKGk9"; // TODO: Replace with real user ID
+const MOCK_USER_ID = "QLha2uGmUtT6OlR8zyTp"; // TODO: Replace with real user ID
 
 const IconMap = {
   tree: Trees,
