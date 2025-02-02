@@ -21,8 +21,9 @@ import { CalendarIcon, Users } from "lucide-react";
 import { ActiveChallengeSection } from "@/components/ActiveChallengeSection";
 import { CompletedChallengesSection } from "@/components/CompletedChallengesSection";
 import { WhyDialog } from "@/components/WhyDialog";
+import { clearDatabase, populateDatabase } from "@/data/mockDBData";
 
-export const MOCK_USER_ID = "DbDAsedHMR5g8h8ohdas";
+export const MOCK_USER_ID = "5UFtogUUwLOOvfJKoaCO";
 
 const MOCK_ACTIVE_CHALLENGES = [
   {
