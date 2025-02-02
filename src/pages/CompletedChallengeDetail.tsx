@@ -15,7 +15,7 @@ import { Link } from "react-router-dom";
 import { ChallengeMap } from "@/components/ChallengeMap";
 import { ChallengeChain, ChainNode } from "@/components/ChallengeChain";
 import { JoinChallenge } from "@/components/JoinChallenge";
-import { getNominationById, getRequestById, getTotalDeedGeneratedByChallenge, getUserById, Nomination, User, Request, Challenge, getDeedById, getContributionsForUserInChallenge, Deed } from "@/firebase_functions";
+import { getNominationById, getRequestById, getTotalDeedGeneratedByChallenge, getUserById, Nomination, User, Request, Challenge, getDeedById, getContributionsForUserInChallenge, Deed, getDeedsByPrevId } from "@/firebase_functions";
 import { getChallengeById } from "@/firebase_functions";
 
 const MOCK_CHALLENGE = {
@@ -54,6 +54,8 @@ const MOCK_CHAIN = (() => {
 
   const getRandomInt = (min: number, max: number) => 
     Math.floor(Math.random() * (max - min + 1)) + min;
+
+
 
   // Create root participant
   const rootDate = new Date("2024-03-01T12:00:00Z");
@@ -109,6 +111,48 @@ export default function CompletedChallengeDetail() {
   const [nominator, setNominator] = useState<User | null>(null);
   const [totalContributions, setTotalContributions] = useState<number>(0);
   const [deed, setDeed] = useState<Deed | null>(null);
+  const [user, setUser] = useState<User | null>(null);
+  const [chain, setChain] = useState<ChainNode[]>([]);
+
+  useEffect(() => {
+    const fetchChain = async () => {
+      const chain = await REAL_CHAIN();
+      setChain(chain);
+    };
+    fetchChain();
+  }, []);
+
+  const REAL_CHAIN = async () => {
+    const chain: ChainNode[] = [];
+    const user = await getUserById(userId!);
+    setUser(user);
+    chain.push({
+      id: userId!,
+      userName: user?.Username,
+      createdAt: deed?.DoneAt.toISOString(),
+      location: deed?.Location,
+    });
+
+    const children = await getDeedsByPrevId(deed?.id);
+    while (children.length > 0) {
+      for (const child of children) {
+        const user = await getUserById(child.UserID);
+        const participant: ChainNode = {
+          id: child.id,
+          userName: user.Username,
+          createdAt: child.DoneAt.toISOString(),
+          location: child.Location,
+          nominatedBy: child.PrevDeedID
+        };
+
+        chain.push(participant);
+        // Get the next level of children
+        const newChildren = await getDeedsByPrevId(child.id);
+        children.push(...newChildren);
+      }
+    }
+    return chain;
+  };
  
   useEffect(() => { 
     const fetchNominations = async () => {
@@ -218,19 +262,19 @@ export default function CompletedChallengeDetail() {
               </div> */}
             </div>
           </Card>
-          <ChallengeChain participants={MOCK_CHAIN} />
+          <ChallengeChain participants={chain || []} />
         </div>
 
         <div className="space-y-8">
-          {showParticipationForm && (
-            <div className="space-y-4">
+          {/* {showParticipationForm && (
+            <div className="space-y-4"> 
               <h2 className="text-2xl font-semibold">Join Challenge</h2>
               <ParticipationForm
                 challengeId={challenge?.id}
                 onSubmit={handleParticipation}
               />
             </div>
-          )}
+          )} */}
 
           {challenge?.CauseName && (
             <Card className="p-6">
@@ -241,7 +285,7 @@ export default function CompletedChallengeDetail() {
               </p>
               <Button
                 variant="outline"
-                className="w-full"
+                className="w-full"    
                 onClick={() => window.open(challenge?.CauseURL, "_blank")}
               >
                 Donate Now

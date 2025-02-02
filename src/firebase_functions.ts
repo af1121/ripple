@@ -8,6 +8,7 @@ import {
   query,
   where,
   deleteDoc,
+  updateDoc,
 } from "firebase/firestore";
 import { db } from "./firebase";
 
@@ -330,6 +331,22 @@ export const getTotalDeedsGenerated = async (
     return 0;
   }
 };
+ 
+export const updateDeedNextId = async (
+  deedId: string, 
+  nextDeedId: string
+): Promise<boolean> => {
+  try {
+    const deedRef = doc(db, "deeds", deedId);
+    await updateDoc(deedRef, {
+      NextDeedID: nextDeedId
+    });
+    return true;
+  } catch (error) {
+    console.error("Error updating deed:", error);
+    return false;
+  }
+};
 
 export const getTotalDeedGeneratedByChallenge = async (
   challengeId: string
@@ -614,6 +631,27 @@ export const getRequestByUserAndChallenge = async (
   } catch (error) {
     console.error("Error getting request for user and challenge:", error);
     return null;
+  }
+};
+
+export const getDeedsByPrevId = async (prevDeedId: string): Promise<Deed[]> => {
+  try {
+    const deedsRef = collection(db, "deeds");
+    const q = query(
+      deedsRef,
+      where("PrevDeedID", "==", prevDeedId)
+    );
+    
+    const querySnapshot = await getDocs(q);
+    const deeds = querySnapshot.docs.map((doc) => ({
+      id: doc.id,
+      ...(doc.data() as Omit<Deed, "id">),
+    }));
+
+    return deeds;
+  } catch (error) {
+    console.error("Error getting deeds by previous deed ID:", error);
+    return [];
   }
 };
 
