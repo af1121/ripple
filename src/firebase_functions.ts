@@ -59,7 +59,7 @@ interface Deed {
 
 interface Location {
   lat: number;
-  lng: number;
+  lng: number;  
 }
 
 interface RequestDetails {
@@ -73,7 +73,7 @@ interface RequestDetails {
 
 export const getUsers = async () => {
   try {
-    const querySnapshot = await getDocs(collection(db, "Users"));
+    const querySnapshot = await getDocs(collection(db, "users"));
     const usersData = querySnapshot.docs.map((doc) => ({
       id: doc.id,
       ...(doc.data() as Omit<User, "id">),
@@ -87,7 +87,7 @@ export const getUsers = async () => {
 
 export const getUserById = async (userId: string): Promise<User | null> => {
   try {
-    const userDoc = await getDoc(doc(db, "Users", userId));
+    const userDoc = await getDoc(doc(db, "users", userId));
     if (userDoc.exists()) {
       const data = userDoc.data();
       return {
@@ -402,7 +402,7 @@ export const createUser = async (
   userData: Omit<User, "id">
 ): Promise<User | null> => {
   try {
-    const docRef = await addDoc(collection(db, "Users"), userData);
+    const docRef = await addDoc(collection(db, "users"), userData);
     return {
       id: docRef.id,
       ...userData,
@@ -579,7 +579,7 @@ export const getRequestsList = async (
 
         // Get nominator's name
         const nominatorDoc = await getDoc(
-          doc(db, "Users", nomination.Nominator)
+          doc(db, "users", nomination.Nominator)
         );
         const nominator = nominatorDoc.exists() ? nominatorDoc.data() : null;
 
