@@ -21,7 +21,7 @@ const MOCK_CHALLENGE = {
   description: "Join the fitness revolution! Complete 30 days of progressive workouts and share your journey with the community. Together, we'll build healthier habits and inspire others to join the movement.",
   startDate: "2024-03-01",
   endDate: "2024-03-30",
-  participants: 60,
+  participants: 100,
   charityName: "Global Health Foundation",
   charityUrl: "https://example.com/charity",
   imageUrl: "https://images.unsplash.com/photo-1517836357463-d25dfeac3438?auto=format&fit=crop&q=80",
@@ -54,14 +54,14 @@ const MOCK_CHAIN = (() => {
   let currentLevel = [1]; // IDs of nodes at current level
 
   // Generate 3-4 levels of participants
-  while (chain.length < 60 && currentLevel.length > 0) {
+  while (chain.length < 100 && currentLevel.length > 0) {
     const nextLevel: number[] = [];
     
     for (const parentId of currentLevel) {
       // Each parent nominates 2-4 participants
       const numChildren = getRandomInt(2, 4);
       
-      for (let i = 0; i < numChildren && chain.length < 60; i++) {
+      for (let i = 0; i < numChildren && chain.length < 100; i++) {
         currentId++;
         const date = new Date(rootDate);
         date.setHours(date.getHours() + getRandomInt(1, 72));
@@ -179,7 +179,7 @@ export default function ChallengeDetail() {
                 className="w-full"
                 onClick={() => window.open(MOCK_CHALLENGE.charityUrl, "_blank")}
               >
-                Learn More
+                Donate Now
               </Button>
             </Card>
           )}
