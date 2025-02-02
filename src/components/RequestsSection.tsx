@@ -2,6 +2,8 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ChevronRight, Trees, Coffee } from "lucide-react";
 import { Link } from "react-router-dom";
+import { getRequestsList } from "@/firebase_functions";
+import { useState, useEffect } from "react";
 
 interface Request {
   id: string;
@@ -12,24 +14,7 @@ interface Request {
   icon: "tree" | "coffee";
 }
 
-const MOCK_REQUESTS: Request[] = [
-  {
-    id: "1",
-    title: "Plant a tree",
-    nominatedBy: "USERNAME2",
-    timeLeft: "00:00:00",
-    peopleInChain: 75,
-    icon: "tree"
-  },
-  {
-    id: "2",
-    title: "Buy someone a coffee",
-    nominatedBy: "USERNAME3",
-    timeLeft: "00:00:00",
-    peopleInChain: 54,
-    icon: "coffee"
-  }
-];
+const MOCK_USER_ID = "DbDAsedHMR5g8h8ohdas"; // TODO: Replace with real user ID
 
 const IconMap = {
   tree: Trees,
@@ -37,11 +22,29 @@ const IconMap = {
 };
 
 export function RequestsSection() {
+  const [requests, setRequests] = useState<Request[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchRequests = async () => {
+      try {
+        const requestsList = await getRequestsList(MOCK_USER_ID);
+        setRequests(requestsList);
+      } catch (error) {
+        console.error("Error fetching requests:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchRequests();
+  }, []);
+
   return (
     <div className="mb-8">
       <h2 className="text-2xl font-semibold mb-4">Requests</h2>
       <div className="space-y-4">
-        {MOCK_REQUESTS.map((request) => {
+        {requests.map((request) => {
           const Icon = IconMap[request.icon];
           return (
             <Link to={`/challenge/${request.id}`} key={request.id}>
@@ -71,4 +74,4 @@ export function RequestsSection() {
       </div>
     </div>
   );
-} 
+}

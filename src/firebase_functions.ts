@@ -1,4 +1,14 @@
-import { collection, getDocs, doc, getDoc, addDoc, Timestamp, query, where, deleteDoc } from "firebase/firestore";
+import {
+  collection,
+  getDocs,
+  doc,
+  getDoc,
+  addDoc,
+  Timestamp,
+  query,
+  where,
+  deleteDoc,
+} from "firebase/firestore";
 import { db } from "./firebase";
 
 interface User {
@@ -35,17 +45,25 @@ interface Challenge {
 
 interface Deed {
   id: string;
-  userID: string;
-  challengeID: string;
-  pictures: string[];
-  comment: string;
-  done_at: Date;
-  location: string;
-  prevDeedID: string;
-  nextDeedID: string;
-  numContributions: number;
+  UserID: string;
+  ChallengeID: string;
+  Pictures: string[];
+  Comment: string;
+  DoneAt: Date;
+  Location: string;
+  PrevDeedID: string;
+  NextDeedID: string;
+  NumContributions: number;
 }
 
+interface RequestDetails {
+  id: string;
+  title: string;
+  nominatedBy: string;
+  timeLeft: string;
+  peopleInChain: number;
+  icon: "tree" | "coffee";
+}
 
 export const getUsers = async () => {
   try {
@@ -64,11 +82,11 @@ export const getUsers = async () => {
 export const getUserById = async (userId: string): Promise<User | null> => {
   try {
     const userDoc = await getDoc(doc(db, "users", userId));
-    
+
     if (userDoc.exists()) {
       return {
         id: userDoc.id,
-        ...(userDoc.data() as Omit<User, "id">)
+        ...(userDoc.data() as Omit<User, "id">),
       };
     } else {
       console.log("No user found with ID:", userId);
@@ -98,7 +116,9 @@ export const getNominations = async () => {
   }
 };
 
-export const getNominationById = async (nominationId: string): Promise<Nomination | null> => {
+export const getNominationById = async (
+  nominationId: string
+): Promise<Nomination | null> => {
   try {
     const nominationDoc = await getDoc(doc(db, "nominations", nominationId));
     if (nominationDoc.exists()) {
@@ -130,13 +150,15 @@ export const getRequests = async () => {
   }
 };
 
-export const getRequestById = async (requestId: string): Promise<Request | null> => {
+export const getRequestById = async (
+  requestId: string
+): Promise<Request | null> => {
   try {
     const requestDoc = await getDoc(doc(db, "requests", requestId));
     if (requestDoc.exists()) {
       return {
         id: requestDoc.id,
-        ...(requestDoc.data() as Omit<Request, "id">)
+        ...(requestDoc.data() as Omit<Request, "id">),
       };
     }
     return null;
@@ -146,21 +168,23 @@ export const getRequestById = async (requestId: string): Promise<Request | null>
   }
 };
 
-export const getRequestsByNomineeId = async (userId: string): Promise<Request[]> => {
+export const getRequestsByNomineeId = async (
+  userId: string
+): Promise<Request[]> => {
   try {
     const requestsRef = collection(db, "requests");
     const q = query(
-      requestsRef, 
+      requestsRef,
       where("NomineeID", "==", userId),
-      where("active", "==", true) // Only get active requests
+      where("Active", "==", true)
     );
     const querySnapshot = await getDocs(q);
-    
+
     const requests = querySnapshot.docs.map((doc) => ({
       id: doc.id,
-      ...(doc.data() as Omit<Request, "id">)
+      ...(doc.data() as Omit<Request, "id">),
     }));
-    
+
     return requests;
   } catch (error) {
     console.error("Error fetching requests for nominee:", error);
@@ -186,7 +210,9 @@ export const getChallenges = async () => {
   }
 };
 
-export const getChallengeById = async (challengeId: string): Promise<Challenge | null> => {
+export const getChallengeById = async (
+  challengeId: string
+): Promise<Challenge | null> => {
   try {
     const challengeDoc = await getDoc(doc(db, "challenges", challengeId));
     if (challengeDoc.exists()) {
@@ -212,7 +238,7 @@ export const getDeeds = async () => {
       return {
         id: doc.id,
         ...data,
-        done_at: data.done_at.toDate(),
+        DoneAt: data.DoneAt.toDate(),
       } as Deed;
     });
     return deeds;
@@ -230,7 +256,7 @@ export const getDeedById = async (deedId: string): Promise<Deed | null> => {
       return {
         id: deedDoc.id,
         ...data,
-        done_at: data.done_at.toDate(),
+        DoneAt: data.DoneAt.toDate(),
       } as Deed;
     }
     return null;
@@ -243,18 +269,18 @@ export const getDeedById = async (deedId: string): Promise<Deed | null> => {
 export const getDeedsByUserId = async (userId: string): Promise<Deed[]> => {
   try {
     const deedsRef = collection(db, "deeds");
-    const q = query(deedsRef, where("userID", "==", userId));
+    const q = query(deedsRef, where("UserID", "==", userId));
     const querySnapshot = await getDocs(q);
-    
+
     const deeds = querySnapshot.docs.map((doc) => {
       const data = doc.data();
       return {
         id: doc.id,
         ...data,
-        done_at: data.done_at.toDate(),
+        DoneAt: data.DoneAt.toDate(),
       } as Deed;
     });
-    
+
     return deeds;
   } catch (error) {
     console.error("Error fetching deeds for user:", error);
@@ -262,12 +288,39 @@ export const getDeedsByUserId = async (userId: string): Promise<Deed[]> => {
   }
 };
 
-export const createUser = async (userData: Omit<User, 'id'>): Promise<User | null> => {
+export const getTotalDeedsGenerated = async (
+  userId: string
+): Promise<number> => {
+  try {
+    // First get all deeds by this user
+    const deedsRef = collection(db, "deeds");
+    const userDeedsQuery = query(deedsRef, where("UserID", "==", userId));
+    const userDeeds = await getDocs(userDeedsQuery);
+
+    let totalDeeds = 0;
+
+    // For each deed by this user, add up the number of contributions
+    for (const deedDoc of userDeeds.docs) {
+      const deed = deedDoc.data() as Deed;
+      totalDeeds += deed.NumContributions;
+    }
+
+    console.log("Total deeds generated by user:", totalDeeds);
+    return totalDeeds;
+  } catch (error) {
+    console.error("Error calculating total deeds generated:", error);
+    return 0;
+  }
+};
+
+export const createUser = async (
+  userData: Omit<User, "id">
+): Promise<User | null> => {
   try {
     const docRef = await addDoc(collection(db, "users"), userData);
     return {
       id: docRef.id,
-      ...userData
+      ...userData,
     };
   } catch (error) {
     console.error("Error creating user:", error);
@@ -276,19 +329,19 @@ export const createUser = async (userData: Omit<User, 'id'>): Promise<User | nul
 };
 
 export const createNomination = async (
-  nominationData: Omit<Nomination, 'id' | 'started_at'> & { started_at?: Date }
+  nominationData: Omit<Nomination, "id" | "started_at"> & { started_at?: Date }
 ): Promise<Nomination | null> => {
   try {
     const data = {
       ...nominationData,
-      started_at: Timestamp.fromDate(nominationData.started_at || new Date())
+      started_at: Timestamp.fromDate(nominationData.started_at || new Date()),
     };
-    
+
     const docRef = await addDoc(collection(db, "nominations"), data);
     return {
       id: docRef.id,
       ...nominationData,
-      started_at: nominationData.started_at || new Date()
+      started_at: nominationData.started_at || new Date(),
     };
   } catch (error) {
     console.error("Error creating nomination:", error);
@@ -297,18 +350,18 @@ export const createNomination = async (
 };
 
 export const createRequest = async (
-  requestData: Omit<Request, 'id'> & { active?: boolean }
+  requestData: Omit<Request, "id"> & { active?: boolean }
 ): Promise<Request | null> => {
   try {
     const data = {
       ...requestData,
-      active: requestData.active ?? true // defaults to true if not provided
+      active: requestData.active ?? true, // defaults to true if not provided
     };
-    
+
     const docRef = await addDoc(collection(db, "requests"), data);
     return {
       id: docRef.id,
-      ...data
+      ...data,
     };
   } catch (error) {
     console.error("Error creating request:", error);
@@ -317,19 +370,19 @@ export const createRequest = async (
 };
 
 export const createChallenge = async (
-  challengeData: Omit<Challenge, 'id' | 'started_at'> & { started_at?: Date }
+  challengeData: Omit<Challenge, "id" | "started_at"> & { started_at?: Date }
 ): Promise<Challenge | null> => {
   try {
     const data = {
       ...challengeData,
-      started_at: Timestamp.fromDate(challengeData.started_at || new Date())
+      started_at: Timestamp.fromDate(challengeData.started_at || new Date()),
     };
-    
+
     const docRef = await addDoc(collection(db, "challenges"), data);
     return {
       id: docRef.id,
       ...challengeData,
-      started_at: challengeData.started_at || new Date()
+      started_at: challengeData.started_at || new Date(),
     };
   } catch (error) {
     console.error("Error creating challenge:", error);
@@ -338,19 +391,19 @@ export const createChallenge = async (
 };
 
 export const createDeed = async (
-  deedData: Omit<Deed, 'id' | 'done_at'> & { done_at?: Date }
+  deedData: Omit<Deed, "id" | "DoneAt"> & { DoneAt?: Date }
 ): Promise<Deed | null> => {
   try {
     const data = {
       ...deedData,
-      done_at: Timestamp.fromDate(deedData.done_at || new Date())
+      DoneAt: Timestamp.fromDate(deedData.DoneAt || new Date()),
     };
-    
+
     const docRef = await addDoc(collection(db, "deeds"), data);
     return {
       id: docRef.id,
       ...deedData,
-      done_at: deedData.done_at || new Date()
+      DoneAt: deedData.DoneAt || new Date(),
     };
   } catch (error) {
     console.error("Error creating deed:", error);
@@ -362,17 +415,91 @@ export const deleteRequest = async (requestId: string): Promise<boolean> => {
   try {
     const requestRef = doc(db, "requests", requestId);
     const requestDoc = await getDoc(requestRef);
-    
+
     if (!requestDoc.exists()) {
       console.log("Request not found:", requestId);
       return false;
     }
-    
+
     await deleteDoc(requestRef);
     return true;
   } catch (error) {
     console.error("Error deleting request:", error);
     return false;
+  }
+};
+
+export const getRequestsList = async (
+  userId: string
+): Promise<RequestDetails[]> => {
+  try {
+    const requestsRef = collection(db, "requests");
+    const q = query(
+      requestsRef,
+      where("NomineeID", "==", userId),
+      where("Active", "==", true)
+    );
+    const requestsSnapshot = await getDocs(q);
+
+    const requestsWithDetails = await Promise.all(
+      requestsSnapshot.docs.map(async (requestDoc) => {
+        const request = requestDoc.data();
+
+        // Check if NominationID exists
+        if (!request?.NominationID) {
+          console.warn(`Request ${requestDoc.id} has no NominationID`);
+          return null;
+        }
+
+        // Get nomination to find challenge
+        const nominationDoc = await getDoc(
+          doc(db, "nominations", request.NominationID)
+        );
+        const nomination = nominationDoc.exists() ? nominationDoc.data() : null;
+
+        // Check if ChallengeID exists
+        if (!nomination?.ChallengeID) {
+          console.warn(`Nomination ${request.NominationID} has no ChallengeID`);
+          return null;
+        }
+
+        // Get challenge details
+        const challengeDoc = await getDoc(
+          doc(db, "challenges", nomination.ChallengeID)
+        );
+        const challenge = challengeDoc.exists() ? challengeDoc.data() : null;
+
+        // Check if Nominator exists
+        if (!nomination?.Nominator) {
+          console.warn(`Nomination ${request.NominationID} has no Nominator`);
+          return null;
+        }
+
+        // Get nominator's name
+        const nominatorDoc = await getDoc(
+          doc(db, "users", nomination.Nominator)
+        );
+        const nominator = nominatorDoc.exists() ? nominatorDoc.data() : null;
+
+        return {
+          id: requestDoc.id,
+          title: challenge?.Title || "Unknown Challenge",
+          nominatedBy: nominator?.Username || "Unknown User",
+          timeLeft: "24:00:00",
+          peopleInChain: challenge?.Participants || 0,
+          icon: (nomination?.Icon as "tree" | "coffee") || "tree",
+        };
+      })
+    );
+
+    const validRequests = requestsWithDetails.filter(
+      (request): request is RequestDetails => request !== null
+    );
+    console.log("Requests list:", validRequests);
+    return validRequests;
+  } catch (error) {
+    console.error("Error fetching requests list:", error);
+    return [];
   }
 };
 
