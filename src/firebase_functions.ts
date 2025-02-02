@@ -8,6 +8,7 @@ import {
   query,
   where,
   deleteDoc,
+  updateDoc,
 } from "firebase/firestore";
 import { db } from "./firebase";
 
@@ -582,6 +583,34 @@ export const getContributionsForUserInChallenge = async (
   } catch (error) {
     console.error("Error getting contributions for user in challenge:", error);
     return 0;
+  }
+};
+
+export const incrementAllPreviousDeedsContributions = async (deedId: string): Promise<void> => {
+  try {
+    let currentDeedId = deedId;
+    
+    while (currentDeedId) {
+      // Get the current deed document
+      const deedRef = doc(db, "deeds", currentDeedId);
+      const deedSnap = await getDoc(deedRef);
+      
+      if (!deedSnap.exists()) {
+        break;
+      }
+      
+      const deedData = deedSnap.data();
+      
+      // Increment NumContributions
+      await updateDoc(deedRef, {
+        NumContributions: (deedData.NumContributions || 0) + 1
+      });
+      
+      // Move to previous deed
+      currentDeedId = deedData.PrevDeedID;
+    }
+  } catch (error) {
+    console.error("Error incrementing previous deeds contributions:", error);
   }
 };
 
