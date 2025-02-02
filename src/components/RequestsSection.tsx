@@ -118,24 +118,24 @@ export function RequestsSection({ requests }: { requests: Request[] }) {
                     <div className="h-12 w-12 bg-muted rounded-full flex items-center justify-center">
                       <Icon className="h-6 w-6 text-muted-foreground" />
                     </div>
-                  </div>
-                  <div className="flex-1">
-                    <h3 className="font-semibold">{challenge.Title}</h3>
-                    <p className="text-sm text-muted-foreground">
-                      NOMINATED BY {nominator.Username}
-                    </p>
-                    <div className="flex items-center gap-4 mt-1 text-sm">
-                      <span>Time left: {timeLeft(nomination.StartedAt)}</span>
-                      <span>
-                        {3 /*request.peopleInChain*/} people in the chain
-                      </span>
+                    <div className="flex-1">
+                      <h3 className="font-semibold">{challenge.Title}</h3>
+                      <p className="text-sm text-muted-foreground">
+                        NOMINATED BY {nominator.Username}
+                      </p>
+                      <div className="flex items-center gap-4 mt-1 text-sm">
+                        <span>Time left: {timeLeft(nomination.StartedAt)}</span>
+                        <span>
+                          {3 /*request.peopleInChain*/} people in the chain
+                        </span>
+                      </div>
                     </div>
                     <Button variant="ghost" size="icon">
                       <ChevronRight className="h-4 w-4" />
                     </Button>
                   </div>
                 </Card>
-              </Link>
+              </Link> 
             );
           }
         )}
