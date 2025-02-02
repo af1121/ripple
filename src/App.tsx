@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
 import ChallengeDetail from "./pages/ChallengeDetail";
 import NotFound from "./pages/NotFound";
+import { RippleBackground } from "@/components/RippleBackground";
 
 const queryClient = new QueryClient();
 
@@ -14,6 +15,7 @@ const App = () => (
     <TooltipProvider>
       <Toaster />
       <Sonner />
+      <RippleBackground />
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Index />} />
