@@ -19,6 +19,7 @@ import { Card } from "@/components/ui/card";
 import { Link } from "react-router-dom";
 import { CalendarIcon, Users } from "lucide-react";
 import { ActiveChallengeSection } from "@/components/ActiveChallengeSection";
+import { CompletedChallengesSection } from "@/components/CompletedChallengesSection";
 
 export const MOCK_USER_ID = "DbDAsedHMR5g8h8ohdas";
 
@@ -59,7 +60,6 @@ const MOCK_COMPLETED_CHALLENGES = [
     icon: "trophy",
   },
 ];
-
 
 export default function Index() {
   const [user, setUser] = useState<User | null>(null);
@@ -104,7 +104,7 @@ export default function Index() {
         const requests: Request[] = await getRequestsByNomineeId(
           MOCK_USER_ID,
           true
-        );  
+        );
         if (requests) {
           setActiveRequests(requests);
           console.log("Requests:", requests); // Debug log
@@ -188,8 +188,7 @@ export default function Index() {
           </div>
         </div> */}
 
-
-        <div className="mb-8">
+        {/* <div className="mb-8">
           <h2 className="text-2xl font-semibold mb-4">Completed Challenges</h2>
           <div className="space-y-4">
             {MOCK_COMPLETED_CHALLENGES.map((challenge) => (
@@ -220,7 +219,8 @@ export default function Index() {
               </Link>
             ))}
           </div>
-        </div>
+        </div> */}
+        <CompletedChallengesSection userId={MOCK_USER_ID} />
 
         <AddChallengeButton />
       </div>
