@@ -1,18 +1,18 @@
 interface ShareMessageProps {
   username: string;
   challengeTitle: string;
-  charityName?: string;
+  causeName?: string;
   challengeUrl: string;
 }
 
 export function createShareMessage({
   username,
   challengeTitle,
-  charityName,
+  causeName,
   challengeUrl,
 }: ShareMessageProps): string {
   return `${username} has completed ${challengeTitle}${
-    charityName ? ` to raise awareness for ${charityName}` : ""
+    causeName ? ` to raise awareness for ${causeName}` : ""
   }. They have nominated you to continue the chain. Click the link below to get started:\n\n${challengeUrl}`;
 }
 

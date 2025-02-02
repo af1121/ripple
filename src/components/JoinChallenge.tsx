@@ -13,7 +13,7 @@ interface JoinChallengeProps {
   onOpenChange: (open: boolean) => void;
   challengeId: string;
   challengeTitle: string;
-  charityName?: string;
+  causeName?: string;
   username: string;
 }
 
@@ -26,7 +26,7 @@ export function JoinChallenge({
   onOpenChange, 
   challengeId,
   challengeTitle,
-  charityName,
+  causeName,
   username 
 }: JoinChallengeProps) {
   const [loading, setLoading] = useState(false);
@@ -67,7 +67,7 @@ export function JoinChallenge({
     const message = createShareMessage({
       username,
       challengeTitle,
-      charityName,
+      causeName,
       challengeUrl,
     });
 

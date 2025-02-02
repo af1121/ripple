@@ -17,8 +17,8 @@ export interface ParticipationFormData {
   challengeDescription?: string;
   startDate?: string;
   endDate?: string;
-  charityName?: string;
-  charityUrl?: string;
+  causeName?: string;
+  causeURL?: string;
   evidence?: {
     description: string;
     mediaUrls: string[];
@@ -42,8 +42,8 @@ export function ParticipationForm({
   const [challengeDescription, setChallengeDescription] = useState("");
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
-  const [charityName, setCharityName] = useState("");
-  const [charityUrl, setCharityUrl] = useState("");
+  const [causeName, setcauseName] = useState("");
+  const [causeURL, setcauseURL] = useState("");
   const [evidenceDescription, setEvidenceDescription] = useState("");
   const [evidenceUrls, setEvidenceUrls] = useState<string[]>([""]);
   const [loading, setLoading] = useState(false);
@@ -77,8 +77,8 @@ export function ParticipationForm({
           challengeDescription,
           startDate,
           endDate,
-          charityName,
-          charityUrl,
+          causeName,
+          causeURL,
           evidence: {
             description: evidenceDescription,
             mediaUrls: evidenceUrls.filter(url => url.trim() !== "")
@@ -93,8 +93,8 @@ export function ParticipationForm({
         setChallengeDescription("");
         setStartDate("");
         setEndDate("");
-        setCharityName("");
-        setCharityUrl("");
+        setcauseName("");
+        setcauseURL("");
         setEvidenceDescription("");
         setEvidenceUrls([""]);
       }
@@ -150,22 +150,22 @@ export function ParticipationForm({
               </div>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="charityName">Supporting Charity (Optional)</Label>
+              <Label htmlFor="causeName">Supporting cause (Optional)</Label>
               <Input
-                id="charityName"
-                value={charityName}
-                onChange={(e) => setCharityName(e.target.value)}
-                placeholder="Enter charity name"
+                id="causeName"
+                value={causeName}
+                onChange={(e) => setcauseName(e.target.value)}
+                placeholder="Enter cause name"
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="charityUrl">Charity URL (Optional)</Label>
+              <Label htmlFor="causeURL">cause URL (Optional)</Label>
               <Input
-                id="charityUrl"
+                id="causeURL"
                 type="url"
-                value={charityUrl}
-                onChange={(e) => setCharityUrl(e.target.value)}
-                placeholder="Enter charity website URL"
+                value={causeURL}
+                onChange={(e) => setcauseURL(e.target.value)}
+                placeholder="Enter cause website URL"
               />
             </div>
             <div className="space-y-4 border-t pt-4 mt-4">

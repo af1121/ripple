@@ -10,7 +10,7 @@ import { toast } from "sonner";
 interface AddChallengeDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onChallengeCreated: (id: string, title: string, charityName?: string) => void;
+  onChallengeCreated: (id: string, title: string, causeName?: string) => void;
 }
 
 export function AddChallengeDialog({ 
@@ -40,8 +40,8 @@ export function AddChallengeDialog({
       title: formData.get("title"),
       description: formData.get("description"),
       imageUrl: formData.get("imageUrl"),
-      charityName: formData.get("charityName"),
-      charityUrl: formData.get("charityUrl"),
+      causeName: formData.get("causeName"),
+      causeUrl: formData.get("causeUrl"),
     };
 
     try {
@@ -57,7 +57,7 @@ export function AddChallengeDialog({
       onChallengeCreated(
         mockChallengeId, 
         data.title as string,
-        data.charityName as string
+        data.causeName as string
       );
     } catch (error) {
       console.error("Error:", error);
@@ -118,21 +118,21 @@ export function AddChallengeDialog({
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="charityName">Supporting Charity (Optional)</Label>
+            <Label htmlFor="causeName">Supporting Cause (Optional)</Label>
             <Input
-              id="charityName"
-              name="charityName"
-              placeholder="Enter charity name"
+              id="causeName"
+              name="causeName"
+              placeholder="Enter cause name"
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="charityUrl">Charity URL (Optional)</Label>
+            <Label htmlFor="causeURL">Cause URL (Optional)</Label>
             <Input
-              id="charityUrl"
-              name="charityUrl"
+              id="causeURL"
+              name="causeURL"
               type="url"
-              placeholder="Enter charity website URL"
+              placeholder="Enter cause website URL"
             />
           </div>
 
