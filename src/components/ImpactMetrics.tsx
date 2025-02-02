@@ -14,7 +14,7 @@ export function ImpactMetrics({ goodDeeds }: ImpactMetricsProps) {
             {goodDeeds}
           </span>
           <CardDescription className="text-xl">
-            Good deeds encouraged
+            chained good deeds
           </CardDescription>
         </div>
       </CardHeader>

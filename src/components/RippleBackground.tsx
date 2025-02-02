@@ -1,6 +1,6 @@
 import { useEffect, useRef } from "react";
 
-export function RippleBackground() {
+export function WaveBackground() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
