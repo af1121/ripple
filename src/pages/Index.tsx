@@ -6,12 +6,15 @@ import { Search } from "lucide-react";
 import { ImpactMetrics } from "@/components/ImpactMetrics";
 import { AddChallengeButton } from "@/components/AddChallengeButton";
 import { RequestsSection } from "@/components/RequestsSection";
-import { getUserById, type User } from "@/firebase_functions";
-import { collection, getDocs } from "firebase/firestore";
-import { db } from "@/firebase";    
-import { Card } from "@/components/ui/card"
-import { Link } from "react-router-dom"
-import { CalendarIcon, Users } from "lucide-react"
+import {
+  getUserById,
+  type UserType,
+  getRequestsByNomineeId,
+  type Request
+} from "@/firebase_functions"; 
+import { Card } from "@/components/ui/card";
+import { Link } from "react-router-dom";
+import { CalendarIcon, Users } from "lucide-react";
 
 const MOCK_USER_ID = "DbDAsedHMR5g8h8ohdas";
 
@@ -34,8 +37,47 @@ const MOCK_ACTIVE_CHALLENGES = [
   },
 ];
 
-
 export default function Index() {
+  const [user, setUser] = useState<UserType | null>(null);
+  const [requests, setRequests] = useState<Request[]>([]);
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const userData: UserType = await getUserById(MOCK_USER_ID);
+        if (userData) {
+          setUser(userData);
+          console.log("Setting user state to:", userData); // Debug log
+        } else {
+          console.error("No user found with ID:", MOCK_USER_ID);
+          setUser(null);
+        }
+      } catch (error) {
+        console.error("Error fetching user:", error);
+        setUser(null);
+      }
+    };
+
+    const fetchRequests = async () => {
+      try {
+        const requests: Request[] = await getRequestsByNomineeId(MOCK_USER_ID, false);
+        if (requests) {
+          setRequests(requests);
+          console.log("Requests:", requests); // Debug log
+        } else {
+          console.error("No requests found with nomineeID:", MOCK_USER_ID);
+          setRequests(null);
+        }
+      } catch (error) { 
+        console.error("Error fetching requests:", error);
+        setRequests([]);
+      }
+    };
+
+    fetchUser();
+    fetchRequests();
+  }, []);
+
   return (
     <>
       <header className="border-b">
@@ -43,20 +85,21 @@ export default function Index() {
           <h1 className="text-2xl font-bold text-teal-500">Ripple</h1>
         </div>
       </header>
-      
-      <div className="container max-w-2xl mx-auto p-4">
+
+      <div className="container max-w-2xl mx-auto p -4">
         <h2 className="text-3xl font-bold mb-6">
-          Hi, Username <span className="wave">👋</span>
+          Hi, {user?.username || "Loading..."} <span className="wave">👋</span>
         </h2>
-        
-        <p className="text-muted-foreground mb-8 text-center">
-          Participate in challenges that make a difference and visualise your impact
+
+        <p className="text-muted-foreground  mb-8 text-center">
+          Participate in challenges that make a difference and visualise your
+          impact
         </p>
 
         <ImpactMetrics goodDeeds={596} />
-        
-        <RequestsSection />
-        
+
+        <RequestsSection requests={requests || []} />
+
         <div className="mb-8">
           <h2 className="text-2xl font-semibold mb-4">Active Challenges</h2>
           <div className="space-y-4">
@@ -70,7 +113,8 @@ export default function Index() {
                         <div className="flex items-center gap-2">
                           <CalendarIcon className="w-4 h-4" />
                           <span>
-                            {new Date(challenge.startDate).toLocaleDateString()} - {new Date(challenge.endDate).toLocaleDateString()}
+                            {new Date(challenge.startDate).toLocaleDateString()}{" "}
+                            - {new Date(challenge.endDate).toLocaleDateString()}
                           </span>
                         </div>
                         <div className="flex items-center gap-2">
@@ -79,10 +123,10 @@ export default function Index() {
                         </div>
                       </div>
                     </div>
-                    
+
                     <div className="w-full bg-muted rounded-full h-2">
-                      <div 
-                        className="bg-teal-500 h-2 rounded-full transition-all" 
+                      <div
+                        className="bg-teal-500 h-2 rounded-full transition-all"
                         style={{ width: `${challenge.progress}%` }}
                       />
                     </div>
@@ -92,7 +136,7 @@ export default function Index() {
             ))}
           </div>
         </div>
-        
+
         <AddChallengeButton />
       </div>
     </>
