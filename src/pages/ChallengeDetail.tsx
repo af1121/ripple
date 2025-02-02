@@ -132,18 +132,68 @@ export default function ChallengeDetail() {
 
   // Comment out or remove REAL_CHAIN since we're not using it
   // const REAL_CHAIN = async () => { ... };
+/*
+    const fetchChain = async () => {
+      await fetchNominations();
+      console.log("challenge::::::", challenge);
+      const chain = await REAL_CHAIN();
+      setChain(chain);
+    };
+    fetchChain();
+  }, []);
+
+  // const fetchChain = async () => {
+  //   const chain = await REAL_CHAIN();
+  //   setChain(chain);
+  // };
+
+  const REAL_CHAIN = async () => {
+    const chain: ChainNode[] = [];
+    const user = await getUserById(challenge?.StartedBy!);
+    console.log("Root user:", user);
+    const deedID = await getContributionsForUserInChallenge(challenge?.id!, user?.id!);
+    const deed = await getDeedById(deedID!);
+    setUser(user);  
+    
+
+    chain.push({  
+      id: user.id,      
+      userName: user?.Username,
+      createdAt: deed?.DoneAt.toISOString(),
+      location: deed.Location,
+    });
+ 
+    const children = await getDeedsByPrevId(deed?.id);
+    while (children.length > 0) {
+      for (const child of children) {
+        const user = await getUserById(child.UserID);
+        const participant: ChainNode = {
+          id: child.id,
+          userName: user.Username,
+          createdAt: child.DoneAt.toISOString(),
+          location: child.Location,
+          nominatedBy: child.PrevDeedID 
+        };
+
+        chain.push(participant);
+        // Get the next level of children
+        const newChildren = await getDeedsByPrevId(child.id);
+        children.push(...newChildren);
+      }
+    }
+    return chain;
+  };
+*/
 
   const fetchNominations = async () => {
     try {
-      console.log("requestId::::::::", requestId);
       const request = await getRequestById(requestId!);
-      console.log("request---------", request);
       if (request) {
         setRequest(request);
         const nomination = await getNominationById(request.NominationID);
         console.log("Nomination:", nomination);
         if (nomination) {
-          setNomination(nomination);  
+          setNomination(nomination); 
           const challenge = await getChallengeById(nomination.ChallengeID);
           console.log("Challenge:", challenge);
           if (challenge) {
@@ -154,7 +204,7 @@ export default function ChallengeDetail() {
             if (nominator) {
               setNominator(nominator);
               console.log("Nominator:", nominator);
-            } 
+            }
 
             if (totalContributions) {
               setTotalContributions(totalContributions);
