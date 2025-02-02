@@ -24,7 +24,7 @@ import { CompletedChallengesSection } from "@/components/CompletedChallengesSect
 import { WhyDialog } from "@/components/WhyDialog";
 import { clearDatabase, populateDatabase } from "@/data/mockDBData";
 
-export const MOCK_USER_ID = "ThKZKgw7aa3tel9KKGk9";
+export const MOCK_USER_ID = "QLha2uGmUtT6OlR8zyTp";
 
 const MOCK_ACTIVE_CHALLENGES = [
   {
