@@ -185,13 +185,6 @@ export default function Index() {
                         </div>
                       </div>
                     </div>
-
-                    <div className="w-full bg-muted rounded-full h-2">
-                      <div
-                        className="bg-teal-500 h-2 rounded-full transition-all"
-                        style={{ width: `${challenge.progress}%` }}
-                      />
-                    </div>
                   </div>
                 </Card>
               </Link>
