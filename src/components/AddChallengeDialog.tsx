@@ -39,8 +39,6 @@ export function AddChallengeDialog({
     const data = {
       title: formData.get("title"),
       description: formData.get("description"),
-      startDate: formData.get("startDate"),
-      endDate: formData.get("endDate"),
       imageUrl: formData.get("imageUrl"),
       charityName: formData.get("charityName"),
       charityUrl: formData.get("charityUrl"),
@@ -88,17 +86,6 @@ export function AddChallengeDialog({
               placeholder="Describe your challenge"
               required
             />
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="startDate">Start Date</Label>
-              <Input id="startDate" name="startDate" type="date" required />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="endDate">End Date</Label>
-              <Input id="endDate" name="endDate" type="date" required />
-            </div>
           </div>
 
           <div className="space-y-2">
