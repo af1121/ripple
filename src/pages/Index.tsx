@@ -11,7 +11,7 @@ import {
   type User,
   getTotalDeedsGenerated,
   getRequestsByNomineeId,
-  type Request
+  type Request,
 } from "@/firebase_functions";
 import { collection, getDocs } from "firebase/firestore";
 import { db } from "@/firebase";
@@ -59,9 +59,8 @@ const MOCK_COMPLETED_CHALLENGES = [
   },
 ];
 
-
 export default function Index() {
-  const [user, setUser] = useState<UserType | null>(null);
+  const [user, setUser] = useState<User | null>(null);
   const [requests, setRequests] = useState<Request[]>([]);
   const [totalDeeds, setTotalDeeds] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
@@ -69,7 +68,7 @@ export default function Index() {
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        const userData: UserType = await getUserById(MOCK_USER_ID);
+        const userData: User = await getUserById(MOCK_USER_ID);
         if (userData) {
           setUser(userData);
           console.log("Setting user state to:", userData); // Debug log
@@ -85,7 +84,10 @@ export default function Index() {
 
     const fetchRequests = async () => {
       try {
-        const requests: Request[] = await getRequestsByNomineeId(MOCK_USER_ID, false);
+        const requests: Request[] = await getRequestsByNomineeId(
+          MOCK_USER_ID,
+          false
+        );
         if (requests) {
           setRequests(requests);
           console.log("Requests:", requests); // Debug log
@@ -93,12 +95,12 @@ export default function Index() {
           console.error("No requests found with nomineeID:", MOCK_USER_ID);
           setRequests(null);
         }
-      } catch (error) { 
+      } catch (error) {
         console.error("Error fetching requests:", error);
         setRequests([]);
       }
     };
-    
+
     const fetchTotalDeeds = async () => {
       try {
         console.log("Fetching deeds for user:", MOCK_USER_ID);
@@ -127,7 +129,7 @@ export default function Index() {
 
       <div className="container max-w-2xl mx-auto p-4">
         <h2 className="text-3xl font-bold mb-6">
-          Hi, {user?.username || "Loading..."} <span className="wave">👋</span>
+          Hi, {user?.Username || "Loading..."} <span className="wave">👋</span>
         </h2>
 
         <p className="text-muted-foreground mb-8 text-center">
@@ -175,7 +177,6 @@ export default function Index() {
             ))}
           </div>
         </div>
-
 
         <div className="mb-8">
           <h2 className="text-2xl font-semibold mb-4">Completed Challenges</h2>
