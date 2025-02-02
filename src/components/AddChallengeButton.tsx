@@ -3,19 +3,21 @@ import { Plus } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { AddChallengeDialog } from "./AddChallengeDialog"
 import { JoinChallenge } from "./JoinChallenge"
+import { Challenge } from "@/firebase_functions"
 
 export function AddChallengeButton() {
   const [showAddDialog, setShowAddDialog] = useState(false);
   const [showJoinDialog, setShowJoinDialog] = useState(false);
-  const [newChallenge, setNewChallenge] = useState<{
-    id: string;
-    title: string;
-    causeName?: string;
-  } | null>(null);
+  // const [newChallenge, setNewChallenge] = useState<{
+  //   id: string;
+  //   title: string;
+  //   causeName?: string;
+  // } | null>(null);
+  const [newChallenge, setNewChallenge] = useState<Challenge | null>(null);
 
   const handleChallengeCreated = (id: string, title: string, causeName?: string) => {
     setShowAddDialog(false);
-    setNewChallenge({ id, title, causeName });
+    // setNewChallenge({ id, title, causeName });
     setShowJoinDialog(true);
   };
 
@@ -32,20 +34,23 @@ export function AddChallengeButton() {
 
       <AddChallengeDialog 
         open={showAddDialog}
-        onOpenChange={setShowAddDialog}
+        onOpenChange={setShowAddDialog} 
         onChallengeCreated={handleChallengeCreated}
+        setNewChallenge={setNewChallenge}
       />
 
       {newChallenge && (
         <JoinChallenge
           open={showJoinDialog}
           onOpenChange={setShowJoinDialog}
-          challengeId={newChallenge.id}
-          challengeTitle={newChallenge.title}
-          causeName={newChallenge.causeName}
-          userId={"John Doe"}
+          challenge={newChallenge}
+          userId={newChallenge.StartedBy}
+          prevUserId={null}
+          nomination={null}
         />
+
       )}
     </>
+
   )
 } 

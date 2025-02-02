@@ -141,6 +141,19 @@ export const getNominationById = async (
   }
 };
 
+export const updateRequestActive = async (requestId: string): Promise<boolean> => {
+  try {
+    const requestRef = doc(db, "requests", requestId);
+    await updateDoc(requestRef, {
+      Active: true
+    });
+    return true;
+  } catch (error) {
+    console.error("Error updating request:", error);
+    return false;
+  }
+};
+
 export const getRequests = async (): Promise<Request[]> => {
   try {
     const querySnapshot = await getDocs(collection(db, "requests"));

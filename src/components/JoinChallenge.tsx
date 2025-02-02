@@ -35,9 +35,7 @@ interface NomineeInput {
 export function JoinChallenge({ 
   open, 
   onOpenChange, 
-  challengeId,
-  challengeTitle,
-  causeName,
+  challenge,
   userId,
   prevUserId,
   nomination,
@@ -90,12 +88,13 @@ export function JoinChallenge({
   };
 
   const handleShare = async (nominees: NomineeInput[]) => {
-    const challengeUrl = `${window.location.origin}/challenge/${challengeId}`;
+    const challengeUrl = `${window.location.origin}/challenge/${challenge?.id}`;
     const message = createShareMessage({
       username,
-      challengeTitle,
-      causeName,
+      challengeTitle: challenge?.Title || "",
+      causeName: challenge?.CauseName || "",
       challengeUrl,
+
     });
 
     nominees.forEach(nominee => {
@@ -106,10 +105,10 @@ export function JoinChallenge({
   };
 
   const uploadImage = async (file: File): Promise<string> => {
-    if (!userId || !challengeId) return "";
+    if (!userId || !challenge.id) return "";
 
     // Create a unique filename using userId, challengeId and timestamp
-    const fileName = `deeds/${userId}/${challengeId}/${Date.now()}_${file.name}`;
+    const fileName = `deeds/${userId}/${challenge.id}/${Date.now()}_${file.name}`;
     const storageRef = ref(storage, fileName);
 
     try {
@@ -189,13 +188,14 @@ export function JoinChallenge({
     try {
 
       const data = {
-        ChallengeID: challengeId,
+        ChallengeID: challenge?.id,
         Comment: description,
         DoneAt: new Date(),
         Image: imageUrl || "",  
         Location: location,
         NumContributions: 1,
         PrevDeedID: prevDeedId,
+
         NextDeedID: null, 
         UserID: userId,
         // nominees: validNominees,
