@@ -62,6 +62,7 @@ const MOCK_COMPLETED_CHALLENGES = [
 export default function Index() {
   const [user, setUser] = useState<User | null>(null);
   const [requests, setRequests] = useState<Request[]>([]);
+  const [activeRequests, setActiveRequests] = useState<Request[]>([]);
   const [totalDeeds, setTotalDeeds] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -101,6 +102,25 @@ export default function Index() {
       }
     };
 
+    const fetchActiveRequests = async () => {
+      try {
+        const requests: Request[] = await getRequestsByNomineeId(
+          MOCK_USER_ID,
+          true
+        );
+        if (requests) {
+          setActiveRequests(requests);
+          console.log("Active Requests:", requests); // Debug log
+        } else {
+          console.error("No requests found with nomineeID:", MOCK_USER_ID);
+          setActiveRequests(null);
+        }
+      } catch (error) {
+        console.error("Error fetching requests:", error);
+        setActiveRequests([]);
+      }
+    };
+
     const fetchTotalDeeds = async () => {
       try {
         console.log("Fetching deeds for user:", MOCK_USER_ID);
@@ -116,6 +136,7 @@ export default function Index() {
 
     fetchUser();
     fetchRequests();
+    fetchActiveRequests();
     fetchTotalDeeds();
   }, []);
 
