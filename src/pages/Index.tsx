@@ -179,8 +179,7 @@ export default function Index() {
                         <div className="flex items-center gap-2">
                           <CalendarIcon className="w-4 h-4" />
                           <span>
-                            {new Date(challenge.startDate).toLocaleDateString()}{" "}
-                            - {new Date(challenge.endDate).toLocaleDateString()}
+                          {"You were nominated on "}{new Date(challenge.startDate).toLocaleDateString()}{" "}
                           </span>
                         </div>
                         <div className="flex items-center gap-2">

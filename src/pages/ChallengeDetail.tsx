@@ -23,8 +23,8 @@ const MOCK_CHALLENGE = {
   startDate: "2024-03-01",
   endDate: "2024-03-30",
   participants: 100,
-  charityName: "Global Health Foundation",
-  charityUrl: "https://example.com/charity",
+  causeName: "Global Health Foundation",
+  causeURL: "https://example.com/cause",
   imageUrl: "https://images.unsplash.com/photo-1517836357463-d25dfeac3438?auto=format&fit=crop&q=80",
 };
 
@@ -128,10 +128,10 @@ export default function ChallengeDetail() {
             <div className="p-6">
               <div className="flex items-center gap-4 mb-4">
                 <Badge variant="secondary">Active Challenge</Badge>
-                {MOCK_CHALLENGE.charityName && (
+                {MOCK_CHALLENGE.causeName && (
                   <Badge variant="outline" className="flex items-center gap-1">
                     <Heart className="w-3 h-3" />
-                    Supporting Charity
+                    Supporting cause
                   </Badge>
                 )}
               </div>
@@ -183,17 +183,17 @@ export default function ChallengeDetail() {
             </div>
           )}
 
-          {MOCK_CHALLENGE.charityName && (
+          {MOCK_CHALLENGE.causeName && (
             <Card className="p-6">
-              <h2 className="text-xl font-semibold mb-4">Supporting Charity</h2>
+              <h2 className="text-xl font-semibold mb-4">Supporting cause</h2>
               <p className="text-muted-foreground mb-4">
-                This challenge supports {MOCK_CHALLENGE.charityName}. Join us in
+                This challenge supports {MOCK_CHALLENGE.causeName}. Join us in
                 making a difference!
               </p>
               <Button
                 variant="outline"
                 className="w-full"
-                onClick={() => window.open(MOCK_CHALLENGE.charityUrl, "_blank")}
+                onClick={() => window.open(MOCK_CHALLENGE.causeURL, "_blank")}
               >
                 Donate Now
               </Button>
@@ -207,7 +207,7 @@ export default function ChallengeDetail() {
         onOpenChange={setShowJoinDialog}
         challengeId={id!}
         challengeTitle={MOCK_CHALLENGE.title}
-        charityName={MOCK_CHALLENGE.charityName}
+        causeName={MOCK_CHALLENGE.causeName}
         username={username}
       />
     </div>

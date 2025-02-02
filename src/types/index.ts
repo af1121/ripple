@@ -7,8 +7,8 @@ export interface Challenge {
   participants: number;
   location: string;
   imageUrl: string;
-  charityName?: string;
-  charityUrl?: string;
+  causeName?: string;
+  causeURL?: string;
 }
 
 export interface Participant {

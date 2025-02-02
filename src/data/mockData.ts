@@ -10,8 +10,8 @@ export const MOCK_CHALLENGES: Challenge[] = [
     participants: 1234,
     location: "Global",
     imageUrl: "https://images.unsplash.com/photo-1517836357463-d25dfeac3438?auto=format&fit=crop&q=80",
-    charityName: "Global Health Foundation",
-    charityUrl: "https://example.com/charity"
+    causeName: "Global Health Foundation",
+    causeURL: "https://example.com/cause"
   },
   {
     id: "2",

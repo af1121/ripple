@@ -6,6 +6,11 @@ import { AddChallengeDialog } from "./AddChallengeDialog"
 export function AddChallengeButton() {
   const [open, setOpen] = useState(false);
 
+  const handleChallengeCreated = (id: string, title: string, causeName?: string) => {
+    setOpen(false);
+    // Add any additional handling if needed
+  };
+
   return (
     <>
       <Button
@@ -20,6 +25,7 @@ export function AddChallengeButton() {
       <AddChallengeDialog 
         open={open}
         onOpenChange={setOpen}
+        onChallengeCreated={handleChallengeCreated}
       />
     </>
   )

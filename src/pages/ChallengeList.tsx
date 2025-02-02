@@ -11,11 +11,11 @@ export default function ChallengeList() {
   const [newChallenge, setNewChallenge] = useState<{
     id: string;
     title: string;
-    charityName?: string;
+    causeName?: string;
   } | null>(null);
 
-  const handleChallengeCreated = (challengeId: string, challengeTitle: string, charityName?: string) => {
-    setNewChallenge({ id: challengeId, title: challengeTitle, charityName });
+  const handleChallengeCreated = (challengeId: string, challengeTitle: string, causeName?: string) => {
+    setNewChallenge({ id: challengeId, title: challengeTitle, causeName });
     setShowJoinDialog(true);
   };
 
@@ -53,7 +53,7 @@ export default function ChallengeList() {
           onOpenChange={setShowJoinDialog}
           challengeId={newChallenge.id}
           challengeTitle={newChallenge.title}
-          charityName={newChallenge.charityName}
+          causeName={newChallenge.causeName}
           username="John Doe"
         />
       )}
