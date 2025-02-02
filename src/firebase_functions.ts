@@ -22,8 +22,7 @@ interface Nomination {
   id: string;
   Nominator: string;
   ChallengeID: string;
-  StartedAt: Date;
-  Text: string;
+  StartedAt: Date; 
   Icon: string;
 }
 
@@ -562,7 +561,7 @@ export const getRequestsList = async (
 export const getContributionsForUserInChallenge = async (
   challengeId: string,
   userId: string
-): Promise<number> => {
+): Promise<string> => {
   try {
     // Get the deed matching the challenge and user
     const deedsRef = collection(db, "deeds");
@@ -574,15 +573,48 @@ export const getContributionsForUserInChallenge = async (
     const deedSnap = await getDocs(q);
 
     if (deedSnap.empty) {
-      return 0;
+      return "";
     }
 
-    // Return the NumContributions from the first matching deed
+    // Return the deed id from the first matching deed
     const deed = deedSnap.docs[0].data();
-    return deed.NumContributions || 0;
+    return deed.id || "";
   } catch (error) {
     console.error("Error getting contributions for user in challenge:", error);
-    return 0;
+    return "";
+  }
+};
+
+export const getRequestByUserAndChallenge = async (
+  userId: string,
+  challengeId: string
+): Promise<Request | null> => {
+  try {
+    // First get all requests for this user
+    const requestsRef = collection(db, "requests");
+    const userRequestsQuery = query(
+      requestsRef,
+      where("NomineeID", "==", userId)
+    );
+    const userRequests = await getDocs(userRequestsQuery);
+
+    // For each request, get its nomination and check the challenge ID
+    for (const requestDoc of userRequests.docs) {
+      const request = requestDoc.data() as Request;
+      const nomination = await getNominationById(request.NominationID);
+      
+      if (nomination && nomination.ChallengeID === challengeId) {
+        return {
+          id: requestDoc.id,
+          ...request
+        };
+      }
+    }
+
+    return null;
+  } catch (error) {
+    console.error("Error getting request for user and challenge:", error);
+    return null;
   }
 };
 
