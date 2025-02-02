@@ -1,6 +1,6 @@
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ChevronRight, Trees, Coffee } from "lucide-react";
+import { ChevronRight } from "lucide-react";
 import { Link } from "react-router-dom";
 import {
   addDays,
@@ -20,34 +20,6 @@ import {
 } from "@/firebase_functions";
 import { useEffect, useState } from "react";
 
-// interface Request {
-//   id: string;
-//   title: string;
-//   nominatedBy: string;
-//   timeLeft: string;
-//   peopleInChain: number;
-//   icon: "tree" | "coffee";
-// }
-
-// const MOCK_REQUESTS: Request[] = [
-//   {
-//     id: "1",
-//     title: "Plant a tree",
-//     nominatedBy: "USERNAME2",
-//     timeLeft: "00:00:00",
-//     peopleInChain: 75,
-//     icon: "tree"
-//   },
-//   {
-//     id: "2",
-//     title: "Buy someone a coffee",
-//     nominatedBy: "USERNAME3",
-//     timeLeft: "00:00:00",
-//     peopleInChain: 54,
-//     icon: "coffee"
-//   }
-// ];
-
 const timeLeft = (date: Date) => {
   const futureDate = addDays(date, 2);
   const currentTime = new Date();
@@ -58,11 +30,6 @@ const timeLeft = (date: Date) => {
 };
 
 const MOCK_USER_ID = "DbDAsedHMR5g8h8ohdas"; // TODO: Replace with real user ID
-
-const IconMap = {
-  tree: Trees,
-  coffee: Coffee,
-};
 
 export function ActiveChallengeSection({ requests }: { requests: Request[] }) {
   const [nominationsMap, setNominationsMap] = useState<
@@ -116,33 +83,34 @@ export function ActiveChallengeSection({ requests }: { requests: Request[] }) {
           ([
             request,
             [nomination, challenge, nominator, totalContributions],
-          ]) => {
-            const Icon = IconMap[nomination.Icon];
-            return (
-              <Link to={`/challenge/${request.id}`} key={request.id}>
-                <Card className="p-4 hover:bg-muted/50 transition-colors">
-                  <div className="flex items-center gap-4">
-                    <div className="h-12 w-12 bg-muted rounded-full flex items-center justify-center">
-                      <Icon className="h-6 w-6 text-muted-foreground" />
-                    </div>
-                    <div className="flex-1">
-                      <h3 className="font-semibold">{challenge.Title}</h3>
-                      <p className="text-sm text-muted-foreground">
-                        NOMINATED BY {nominator.Username}
-                      </p>
-                      <div className="flex items-center gap-4 mt-1 text-sm">
-                        <span>Time left: {timeLeft(nomination.StartedAt)}</span>
-                        <span>{totalContributions} people in the chain</span>
-                      </div>
-                    </div>
-                    <Button variant="ghost" size="icon">
-                      <ChevronRight className="h-4 w-4" />
-                    </Button>
+          ]) => (
+            <Link to={`/challenge/${request.id}`} key={request.id}>
+              <Card className="p-4 hover:bg-muted/50 transition-colors">
+                <div className="flex items-center gap-4">
+                  <div className="h-12 w-12 rounded-full overflow-hidden">
+                    <img 
+                      src={challenge.CoverImage} 
+                      alt={challenge.Title}
+                      className="w-full h-full object-cover"
+                    />
                   </div>
-                </Card>
-              </Link>
-            );
-          }
+                  <div className="flex-1">
+                    <h3 className="font-semibold">{challenge.Title}</h3>
+                    <p className="text-sm text-muted-foreground">
+                      NOMINATED BY {nominator.Username}
+                    </p>
+                    <div className="flex items-center gap-4 mt-1 text-sm">
+                      <span>Time left: {timeLeft(nomination.StartedAt)}</span>
+                      <span>{totalContributions} people in the chain</span>
+                    </div>
+                  </div>
+                  <Button variant="ghost" size="icon">
+                    <ChevronRight className="h-4 w-4" />
+                  </Button>
+                </div>
+              </Card>
+            </Link>
+          )
         )}
       </div>
     </div>
