@@ -1,6 +1,6 @@
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ChevronRight } from "lucide-react";
+import { ChevronRight, Coffee, Trees } from "lucide-react";
 import { Link } from "react-router-dom";
 import {
   addDays,
@@ -30,6 +30,11 @@ const timeLeft = (date: Date) => {
 };
 
 const MOCK_USER_ID = "DbDAsedHMR5g8h8ohdas"; // TODO: Replace with real user ID
+
+const IconMap = {
+  tree: Trees,
+  coffee: Coffee,
+};
 
 export function ActiveChallengeSection({ requests }: { requests: Request[] }) {
   const [nominationsMap, setNominationsMap] = useState<
@@ -83,16 +88,14 @@ export function ActiveChallengeSection({ requests }: { requests: Request[] }) {
           ([
             request,
             [nomination, challenge, nominator, totalContributions],
-          ]) => (
+          ]) => {
+            const Icon = IconMap[nomination.Icon];
+            return (
             <Link to={`/challenge/${request.id}`} key={request.id}>
               <Card className="p-4 hover:bg-muted/50 transition-colors">
                 <div className="flex items-center gap-4">
-                  <div className="h-12 w-12 rounded-full overflow-hidden">
-                    <img 
-                      src={challenge.CoverImage} 
-                      alt={challenge.Title}
-                      className="w-full h-full object-cover"
-                    />
+                  <div className="h-12 w-12 bg-muted rounded-full flex items-center justify-center">
+                    <Icon className="h-6 w-6 text-muted-foreground" />
                   </div>
                   <div className="flex-1">
                     <h3 className="font-semibold">{challenge.Title}</h3>
@@ -110,7 +113,7 @@ export function ActiveChallengeSection({ requests }: { requests: Request[] }) {
                 </div>
               </Card>
             </Link>
-          )
+          )}
         )}
       </div>
     </div>

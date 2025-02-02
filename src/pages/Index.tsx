@@ -104,7 +104,7 @@ export default function Index() {
         const requests: Request[] = await getRequestsByNomineeId(
           MOCK_USER_ID,
           true
-        );
+        );  
         if (requests) {
           setActiveRequests(requests);
           console.log("Requests:", requests); // Debug log

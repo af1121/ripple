@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { ParticipationForm, ParticipationFormData } from "@/components/ParticipationForm";
 import { Button } from "@/components/ui/button";
@@ -15,6 +15,8 @@ import { Link } from "react-router-dom";
 import { ChallengeMap } from "@/components/ChallengeMap";
 import { ChallengeChain, ChainNode } from "@/components/ChallengeChain";
 import { JoinChallenge } from "@/components/JoinChallenge";
+import { getNominationById, getRequestById, getTotalDeedGeneratedByChallenge, getUserById, Nomination, User, Request, Challenge } from "@/firebase_functions";
+import { getChallengeById } from "@/firebase_functions";
 
 const MOCK_CHALLENGE = {
   id: "1",
@@ -98,7 +100,46 @@ const MOCK_CHAIN = (() => {
 })();
 
 export default function ChallengeDetail() {
-  const { id } = useParams();
+  const { requestId } = useParams();
+  const [challenge, setChallenge] = useState<Challenge | null>(null);
+  const [request, setRequest] = useState<Request | null>(null);
+  const [nomination, setNomination] = useState<Nomination>(null);
+  const [nominator, setNominator] = useState<User | null>(null);
+  const [totalContributions, setTotalContributions] = useState<number>(0);
+ 
+  useEffect(() => { 
+    const fetchNominations = async () => {
+      try {
+        const request = await getRequestById(requestId!);
+        if (request) {
+          setRequest(request);
+          const nomination = await getNominationById(request.NominationID);
+          if (nomination) {
+            setNomination(nomination); 
+            const challenge = await getChallengeById(nomination.ChallengeID);
+            if (challenge) {
+              setChallenge(challenge);
+              console.log("Challenge image:", challenge?.CoverImage);
+              const nominator = await getUserById(nomination.Nominator);
+              const totalContributions =
+                await getTotalDeedGeneratedByChallenge(challenge?.id);
+              if (nominator) {
+                setNominator(nominator);
+              }
+              if (totalContributions) {
+                setTotalContributions(totalContributions);
+              }
+            }
+          }
+        }
+      } catch (error) {
+        console.error("Error fetching requests and nominations:", error);
+      }
+    };
+
+    fetchNominations();
+  }, []); 
+
   const [showParticipationForm, setShowParticipationForm] = useState(false);
   const [showJoinDialog, setShowJoinDialog] = useState(false);
 
@@ -121,14 +162,14 @@ export default function ChallengeDetail() {
         <div className="space-y-8">
           <Card className="overflow-hidden">
             <img
-              src={MOCK_CHALLENGE.imageUrl}
-              alt={MOCK_CHALLENGE.title}
+              src={challenge?.CoverImage}
+              alt={challenge?.Title}
               className="w-full h-64 object-cover"
             />
             <div className="p-6">
               <div className="flex items-center gap-4 mb-4">
                 <Badge variant="secondary">Active Challenge</Badge>
-                {MOCK_CHALLENGE.causeName && (
+                {challenge?.CauseName && (
                   <Badge variant="outline" className="flex items-center gap-1">
                     <Heart className="w-3 h-3" />
                     Supporting cause
@@ -136,22 +177,21 @@ export default function ChallengeDetail() {
                 )}
               </div>
 
-              <h1 className="text-3xl font-bold mb-4">{MOCK_CHALLENGE.title}</h1>
+              <h1 className="text-3xl font-bold mb-4">{challenge?.Title}</h1>
               <p className="text-muted-foreground mb-6">
-                {MOCK_CHALLENGE.description}
+                {challenge?.Description}
               </p>
 
               <div className="flex flex-wrap gap-6 mb-6">
                 <div className="flex items-center gap-2">
                   <CalendarIcon className="w-4 h-4 text-muted-foreground" />
                   <span>
-                    {new Date(MOCK_CHALLENGE.startDate).toLocaleDateString()} -{" "}
-                    {new Date(MOCK_CHALLENGE.endDate).toLocaleDateString()}
+                    {new Date(challenge?.StartedAt).toLocaleDateString()}
                   </span>
                 </div>
                 <div className="flex items-center gap-2">
                   <Users className="w-4 h-4 text-muted-foreground" />
-                  <span>{MOCK_CHALLENGE.participants} participants</span>
+                  <span>{totalContributions} participants</span>
                 </div>
               </div>
 
@@ -177,23 +217,23 @@ export default function ChallengeDetail() {
             <div className="space-y-4">
               <h2 className="text-2xl font-semibold">Join Challenge</h2>
               <ParticipationForm
-                challengeId={id!}
+                challengeId={challenge?.id}
                 onSubmit={handleParticipation}
               />
             </div>
           )}
 
-          {MOCK_CHALLENGE.causeName && (
+          {challenge?.CauseName && (
             <Card className="p-6">
               <h2 className="text-xl font-semibold mb-4">Supporting cause</h2>
               <p className="text-muted-foreground mb-4">
-                This challenge supports {MOCK_CHALLENGE.causeName}. Join us in
+                This challenge supports {challenge?.CauseName}. Join us in
                 making a difference!
               </p>
               <Button
                 variant="outline"
                 className="w-full"
-                onClick={() => window.open(MOCK_CHALLENGE.causeURL, "_blank")}
+                onClick={() => window.open(challenge?.CauseURL, "_blank")}
               >
                 Donate Now
               </Button>
@@ -205,9 +245,9 @@ export default function ChallengeDetail() {
       <JoinChallenge
         open={showJoinDialog}
         onOpenChange={setShowJoinDialog}
-        challengeId={id!}
-        challengeTitle={MOCK_CHALLENGE.title}
-        causeName={MOCK_CHALLENGE.causeName}
+        challengeId={challenge?.id}
+        challengeTitle={challenge?.Title}
+        causeName={challenge?.CauseName}
         username={username}
       />
     </div>

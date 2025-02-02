@@ -39,6 +39,8 @@ interface Challenge {
   Description: string;
   CoverImage: string;
   StartedBy: string;
+  CauseName: string;
+  CauseURL: string;
   StartedAt: Date;
 }
 
