@@ -125,7 +125,7 @@ export function RequestsSection({ requests }: { requests: Request[] }) {
                       NOMINATED BY {nominator.Username}
                     </p>
                     <div className="flex items-center gap-4 mt-1 text-sm">
-                      <span>Time left: {timeLeft(nomination.started_at)}</span>
+                      <span>Time left: {timeLeft(nomination.StartedAt)}</span>
                       <span>
                         {3 /*request.peopleInChain*/} people in the chain
                       </span>
