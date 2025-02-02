@@ -15,7 +15,7 @@ import { Link } from "react-router-dom";
 import { ChallengeMap } from "@/components/ChallengeMap";
 import { ChallengeChain, ChainNode } from "@/components/ChallengeChain";
 import { JoinChallenge } from "@/components/JoinChallenge";
-import { getNominationById, getRequestById, getTotalDeedGeneratedByChallenge, getUserById, Nomination, User, Request, Challenge } from "@/firebase_functions";
+import { getNominationById, getRequestById, getTotalDeedGeneratedByChallenge, getUserById, Nomination, User, Request, Challenge, getDeedById, getContributionsForUserInChallenge, getDeedsByPrevId } from "@/firebase_functions";
 import { getChallengeById } from "@/firebase_functions";
 
 const MOCK_CHALLENGE = {
@@ -107,6 +107,63 @@ export default function ChallengeDetail() {
   const [nomination, setNomination] = useState<Nomination>(null);
   const [nominator, setNominator] = useState<User | null>(null);
   const [totalContributions, setTotalContributions] = useState<number>(0);
+  const [chain, setChain] = useState<ChainNode[]>([]);
+  const [user, setUser] = useState<User | null>(null);
+
+  useEffect(() => {
+    const fetchChain = async () => {
+      const chain = await REAL_CHAIN();
+      setChain(chain);
+    };
+    fetchChain();
+  }, [challenge]);
+
+  // const fetchChain = async () => {
+  //   const chain = await REAL_CHAIN();
+  //   setChain(chain);
+  // };
+
+  const REAL_CHAIN = async () => {
+    const chain: ChainNode[] = [];
+    const user = await getUserById(challenge?.StartedBy!);
+    console.log("Root user:", user);
+    console.log("Challenge ID:", challenge?.id);
+    console.log("User ID:", user?.id);
+    const deedID = await getContributionsForUserInChallenge(challenge?.id!, user?.id!);
+    console.log("Deed ID:", deedID);
+    const deed = await getDeedById(deedID!);  
+    console.log("Deed:", deed);
+    setUser(user);  
+
+
+
+    chain.push({
+      id: user.id,      
+      userName: user?.Username,
+      createdAt: deed?.DoneAt.toISOString(),
+      location: deed.Location,
+    });
+ 
+    const children = await getDeedsByPrevId(deed?.id);
+    while (children.length > 0) {
+      for (const child of children) {
+        const user = await getUserById(child.UserID);
+        const participant: ChainNode = {
+          id: child.id,
+          userName: user.Username,
+          createdAt: child.DoneAt.toISOString(),
+          location: child.Location,
+          nominatedBy: child.PrevDeedID 
+        };
+
+        chain.push(participant);
+        // Get the next level of children
+        const newChildren = await getDeedsByPrevId(child.id);
+        children.push(...newChildren);
+      }
+    }
+    return chain;
+  };
  
   useEffect(() => { 
     const fetchNominations = async () => {
@@ -115,9 +172,11 @@ export default function ChallengeDetail() {
         if (request) {
           setRequest(request);
           const nomination = await getNominationById(request.NominationID);
+          console.log("Nomination:", nomination);
           if (nomination) {
             setNomination(nomination); 
             const challenge = await getChallengeById(nomination.ChallengeID);
+            console.log("Challenge:", challenge);
             if (challenge) {
               setChallenge(challenge);
               const nominator = await getUserById(nomination.Nominator);
@@ -125,13 +184,17 @@ export default function ChallengeDetail() {
                 await getTotalDeedGeneratedByChallenge(challenge?.id);
               if (nominator) {
                 setNominator(nominator);
+                console.log("Nominator:", nominator);
               }
+
               if (totalContributions) {
                 setTotalContributions(totalContributions);
+                console.log("Total contributions:", totalContributions);
               }
             }
           }
         }
+
       } catch (error) {
         console.error("Error fetching requests and nominations:", error);
       }
@@ -209,7 +272,7 @@ export default function ChallengeDetail() {
               </div>
             </div>
           </Card>
-          <ChallengeChain participants={MOCK_CHAIN} />
+          <ChallengeChain participants={chain} />
         </div>
 
         <div className="space-y-8">
