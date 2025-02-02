@@ -14,6 +14,7 @@ import {
 import { Link } from "react-router-dom";
 import { ChallengeMap } from "@/components/ChallengeMap";
 import { ChallengeChain, ChainNode } from "@/components/ChallengeChain";
+import { JoinChallenge } from "@/components/JoinChallenge";
 
 const MOCK_CHALLENGE = {
   id: "1",
@@ -99,6 +100,10 @@ const MOCK_CHAIN = (() => {
 export default function ChallengeDetail() {
   const { id } = useParams();
   const [showParticipationForm, setShowParticipationForm] = useState(false);
+  const [showJoinDialog, setShowJoinDialog] = useState(false);
+
+  // You would typically get these from your auth context/state
+  const username = "John Doe"; // Replace with actual username
 
   const handleParticipation = async (data: ParticipationFormData) => {
     console.log("Participation data:", data);
@@ -153,7 +158,7 @@ export default function ChallengeDetail() {
               <div className="flex gap-4">
                 <Button
                   size="lg"
-                  onClick={() => setShowParticipationForm(true)}
+                  onClick={() => setShowJoinDialog(true)}
                   className="flex-1"
                 >
                   Join Challenge
@@ -196,6 +201,15 @@ export default function ChallengeDetail() {
           )}
         </div>
       </div>
+
+      <JoinChallenge
+        open={showJoinDialog}
+        onOpenChange={setShowJoinDialog}
+        challengeId={id!}
+        challengeTitle={MOCK_CHALLENGE.title}
+        charityName={MOCK_CHALLENGE.charityName}
+        username={username}
+      />
     </div>
   );
 }
