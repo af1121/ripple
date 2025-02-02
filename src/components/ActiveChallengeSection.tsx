@@ -80,14 +80,10 @@ export function ActiveChallengeSection({ requests }: { requests: Request[] }) {
         await Promise.all(
           requests.map(async (request) => {
             const nomination = await getNominationById(request.NominationID);
-            console.log("Nomination in fetchNominations:", nomination);
             if (nomination) {
               const challenge = await getChallengeById(nomination.ChallengeID);
-              console.log("Challenge in fetchNominations:", challenge);
               if (challenge) {
                 const nominator = await getUserById(nomination.Nominator);
-                console.log("Nominator in fetchNominations:", nominator);
-                console.log("Challenge ID in fetchNominations:", challenge.id);
                 const totalContributions =
                   await getTotalDeedGeneratedByChallenge(challenge.id);
                 if (nominator) {
@@ -108,7 +104,7 @@ export function ActiveChallengeSection({ requests }: { requests: Request[] }) {
         console.error("Error fetching requests and nominations:", error);
       }
     };
-
+    
     fetchNominations();
   }, [requests]); // Add requests as dependency to rerun when it changes
 

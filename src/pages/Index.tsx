@@ -74,13 +74,10 @@ export default function Index() {
         const userData: User = await getUserById(MOCK_USER_ID);
         if (userData) {
           setUser(userData);
-          console.log("Setting user state to:", userData); // Debug log
         } else {
-          console.error("No user found with ID:", MOCK_USER_ID);
           setUser(null);
         }
       } catch (error) {
-        console.error("Error fetching user:", error);
         setUser(null);
       }
     };
@@ -93,9 +90,7 @@ export default function Index() {
         );
         if (requests) {
           setRequests(requests);
-          console.log("Requests:", requests); // Debug log
         } else {
-          console.error("No requests found with nomineeID:", MOCK_USER_ID);
           setRequests(null);
         }
       } catch (error) {
@@ -125,9 +120,7 @@ export default function Index() {
 
     const fetchTotalDeeds = async () => {
       try {
-        console.log("Fetching deeds for user:", MOCK_USER_ID);
         const total = await getTotalDeedsGenerated(MOCK_USER_ID);
-        console.log("Total deeds generated:", total);
         setTotalDeeds(total);
       } catch (error) {
         console.error("Error fetching total deeds:", error);
@@ -166,7 +159,7 @@ export default function Index() {
 
         <ActiveChallengeSection requests={activeRequests || []} />
 
-        <div className="mb-8">
+        {/* <div className="mb-8">
           <h2 className="text-2xl font-semibold mb-4">Active Challenges</h2>
           <div className="space-y-4">
             {MOCK_ACTIVE_CHALLENGES.map((challenge) => (
@@ -193,7 +186,7 @@ export default function Index() {
               </Link>
             ))}
           </div>
-        </div>
+        </div> */}
 
 
         <div className="mb-8">

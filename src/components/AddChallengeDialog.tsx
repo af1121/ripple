@@ -8,6 +8,8 @@ import { ImagePlus } from "lucide-react";
 import { toast } from "sonner";
 import { MOCK_USER_ID } from "@/pages/Index";
 import { createChallenge } from "@/firebase_functions";
+import { storage } from "@/firebase"; // Make sure this exists
+import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 
 interface AddChallengeDialogProps {
   open: boolean;
@@ -34,24 +36,48 @@ export function AddChallengeDialog({
     }
   };
 
+  const uploadImage = async (file: File): Promise<string> => {
+    // Create a storage reference with user ID and original filename
+    const fileName = `${MOCK_USER_ID}/${file.name}`;
+    const storageRef = ref(storage, fileName);
+
+    try {
+      // Upload the file
+      const snapshot = await uploadBytes(storageRef, file);
+      // Get the download URL
+      const downloadURL = await getDownloadURL(snapshot.ref);
+      return downloadURL;
+    } catch (error) {
+      console.error("Error uploading image:", error);
+      throw new Error("Failed to upload image");
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
 
     const formData = new FormData(e.currentTarget);
+    try { 
+      let imageUrl = "";
+      if (image) {
+        imageUrl = await uploadImage(image);
+      }
+        
     const data = {
-      Title: formData.get("title"),
-      Description: formData.get("description"),
-      CauseName: formData.get("causeName"),
-      CauseURL: formData.get("causeUrl"),
+      Title: formData.get("title") as string,
+      Description: formData.get("description") as string,
+      CoverImage: imageUrl || "", // Use the preview URL or empty string
+      StartedBy: MOCK_USER_ID,
+      CauseName: formData.get("causeName") as string || null,
+      CauseURL: formData.get("causeURL") as string || null,
       StartedAt: new Date(),
-      StartedBy: MOCK_USER_ID,  
-      CoverImage: "tesfdsafdas.png", //Change later to proper image url
-    };    
+    };
 
-    try {
+    console.log("data", data);
+
       const challenge = await createChallenge(data);
-      if (challenge) {
+      if (challenge) {  
         toast.success("Challenge created successfully!");
         setLoading(false);
         onOpenChange(false);
@@ -131,7 +157,6 @@ export function AddChallengeDialog({
             <Input
               id="causeURL"
               name="causeURL"
-              type="url"
               placeholder="Enter cause website URL"
             />
           </div>

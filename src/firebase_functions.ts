@@ -425,7 +425,7 @@ export const createChallenge = async (
   try {
     const data = {
       ...challengeData,
-      StartedAt: Timestamp.fromDate(challengeData.StartedAt || new Date()),
+      // StartedAt: Timestamp.fromDate(challengeData.StartedAt || new Date()),
     };
 
     const docRef = await addDoc(collection(db, "challenges"), data);
