@@ -51,7 +51,7 @@ export default function ChallengeList() {
         <JoinChallenge
           open={showJoinDialog}
           onOpenChange={setShowJoinDialog}
-          challengeId={newChallenge.id}
+          challenge={newChallenge}
           challengeTitle={newChallenge.title}
           causeName={newChallenge.causeName}
           username="John Doe"
