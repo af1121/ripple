@@ -94,6 +94,7 @@ export function JoinChallenge({
       challengeTitle: challenge?.Title || "",
       causeName: challenge?.CauseName || "",
       challengeUrl,
+
     });
 
     nominees.forEach(nominee => {
@@ -104,7 +105,7 @@ export function JoinChallenge({
   };
 
   const uploadImage = async (file: File): Promise<string> => {
-    if (!userId || !challenge) return "";
+    if (!userId || !challenge.id) return "";
 
     // Create a unique filename using userId, challengeId and timestamp
     const fileName = `deeds/${userId}/${challenge.id}/${Date.now()}_${file.name}`;
@@ -194,6 +195,7 @@ export function JoinChallenge({
         Location: location,
         NumContributions: 1,
         PrevDeedID: prevDeedId,
+
         NextDeedID: null, 
         UserID: userId,
         // nominees: validNominees,

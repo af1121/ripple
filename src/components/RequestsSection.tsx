@@ -18,6 +18,7 @@ import {
   User,
   getTotalDeedGeneratedByChallenge,
   deleteRequest,
+  updateRequestActive,
 } from "@/firebase_functions";
 import { useEffect, useState } from "react";
 import { toast } from "react-hot-toast";
@@ -120,11 +121,16 @@ export function RequestsSection({ requests }: { requests: Request[] }) {
 
   const handleAccept = async () => {
     if (!selectedRequest) return;
-    
+                             
     try {
       // Update request to be active
      // await createRequest(selectedRequest.request.id, { Active: true });
-      
+     const success = await updateRequestActive(selectedRequest.request.id);
+      if (!success) {
+        toast.error("Failed to accept challenge");
+        return;
+      }
+
       // Refresh the requests list
       const updatedRequests = requests.filter(r => r.id !== selectedRequest.request.id);
       setNominationsMap(new Map(
@@ -141,7 +147,7 @@ export function RequestsSection({ requests }: { requests: Request[] }) {
   };
 
   const handleDecline = async () => {
-    if (!selectedRequest) return;
+    if (!selectedRequest) return; 
     
     try {
       // Delete or mark request as declined
@@ -150,7 +156,7 @@ export function RequestsSection({ requests }: { requests: Request[] }) {
       // Refresh the requests list
       const updatedRequests = requests.filter(r => r.id !== selectedRequest.request.id);
       setNominationsMap(new Map(
-        Array.from(nominationsMap.entries()).filter(([req]) => req.id !== selectedRequest.request.id)
+        Array.from(nominationsMap.entries()).filter(([req ]) => req.id !== selectedRequest.request.id)
       ));
       
       toast.success("Challenge declined");
@@ -168,7 +174,7 @@ export function RequestsSection({ requests }: { requests: Request[] }) {
       <div className="space-y-4">
         {Array.from(nominationsMap.entries()).map(
           ([request, [nomination, challenge, nominator, totalContributions]]) => (
-            <Card 
+            <Card   
               key={request.id}
               className="p-4 hover:bg-muted/50 transition-colors cursor-pointer"
               onClick={() => setSelectedRequest({

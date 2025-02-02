@@ -120,7 +120,7 @@ export default function CompletedChallengeDetail() {
       setChain(chain);
     };
     fetchChain();
-  }, []);
+  }, [deed]);
 
   const REAL_CHAIN = async () => {
     const chain: ChainNode[] = [];
@@ -133,7 +133,10 @@ export default function CompletedChallengeDetail() {
       location: deed?.Location,
     });
 
+    console.log("deed.id----------------: ", deed?.id);
     const children = await getDeedsByPrevId(deed?.id);
+    console.log("children", children);
+
     while (children.length > 0) {
       for (const child of children) {
         const user = await getUserById(child.UserID);
@@ -150,17 +153,21 @@ export default function CompletedChallengeDetail() {
         const newChildren = await getDeedsByPrevId(child.id);
         children.push(...newChildren);
       }
-    }
+    } 
+    console.log("chain", chain);
     return chain;
   };
  
+
   useEffect(() => { 
     const fetchNominations = async () => {
       try {
         const challenge = await getChallengeById(challengeId!);
         setChallenge(challenge);
         const deedId = await getContributionsForUserInChallenge(challengeId!, userId!);
+        console.log("deedId", deedId);
         const deed = await getDeedById(deedId!);
+        console.log("deed", deed);
         if (deed) {
           setDeed(deed);
         }
@@ -190,7 +197,7 @@ export default function CompletedChallengeDetail() {
       }
     };
 
-    fetchNominations();
+    fetchNominations(); 
   }, []); 
 
   const [showParticipationForm, setShowParticipationForm] = useState(false);

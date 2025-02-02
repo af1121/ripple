@@ -7,7 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { ImagePlus } from "lucide-react";
 import { toast } from "sonner";
 import { MOCK_USER_ID } from "@/pages/Index";
-import { createChallenge } from "@/firebase_functions";
+import { createChallenge, Challenge } from "@/firebase_functions";
 import { storage } from "@/firebase"; // Make sure this exists
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 
@@ -15,12 +15,14 @@ interface AddChallengeDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onChallengeCreated: (id: string, title: string, causeName?: string) => void;
+  setNewChallenge: (challenge: Challenge) => void;
 }
 
 export function AddChallengeDialog({ 
   open, 
   onOpenChange,
-  onChallengeCreated 
+  onChallengeCreated,
+  setNewChallenge
 }: AddChallengeDialogProps) {
   const [loading, setLoading] = useState(false);
   const [image, setImage] = useState<File | null>(null);
@@ -46,7 +48,7 @@ export function AddChallengeDialog({
       const snapshot = await uploadBytes(storageRef, file);
       // Get the download URL
       const downloadURL = await getDownloadURL(snapshot.ref);
-      return downloadURL;
+      return downloadURL; 
     } catch (error) {
       console.error("Error uploading image:", error);
       throw new Error("Failed to upload image");
@@ -64,23 +66,24 @@ export function AddChallengeDialog({
         imageUrl = await uploadImage(image);
       }
         
-    const data = {
-      Title: formData.get("title") as string,
-      Description: formData.get("description") as string,
-      CoverImage: imageUrl || "", // Use the preview URL or empty string
-      StartedBy: MOCK_USER_ID,
-      CauseName: formData.get("causeName") as string || null,
-      CauseURL: formData.get("causeURL") as string || null,
-      StartedAt: new Date(),
-    };
-
-    console.log("data", data);
+      const data = {
+        Title: formData.get("title") as string,
+        Description: formData.get("description") as string,
+        CoverImage: imageUrl || "",
+        StartedBy: MOCK_USER_ID,
+        CauseName: formData.get("causeName") as string || null,
+        CauseURL: formData.get("causeURL") as string || null,
+        StartedAt: new Date(),
+      };
 
       const challenge = await createChallenge(data);
       if (challenge) {  
+        setNewChallenge(challenge);
         toast.success("Challenge created successfully!");
         setLoading(false);
         onOpenChange(false);
+        // Call the callback with challenge details
+        onChallengeCreated(challenge.id, data.Title, data.CauseName || undefined);
       } else {
         toast.error("Failed to create challenge");
         setLoading(false);
