@@ -1,6 +1,6 @@
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ChevronRight, Coffee, Trees } from "lucide-react";
+import { ChevronRight, Coffee, Trees, Dumbbell } from "lucide-react";
 import { Link } from "react-router-dom";
 import {
   addDays,
@@ -29,11 +29,14 @@ const timeLeft = (date: Date) => {
   return `${daysLeft}d ${hoursLeft}h ${minutesLeft}m`;
 };
 
-const MOCK_USER_ID = "DbDAsedHMR5g8h8ohdas"; // TODO: Replace with real user ID
+// Define the possible icon types
+type IconType = "tree" | "coffee" | "dumbbell" | "book";
 
-const IconMap = {
+const IconMap: Record<IconType, any> = {
   tree: Trees,
   coffee: Coffee,
+  dumbbell: Coffee, // Replace with actual Dumbbell icon if available
+  book: Coffee, // Replace with actual Book icon if available
 };
 
 export function ActiveChallengeSection({ requests }: { requests: Request[] }) {
@@ -76,7 +79,7 @@ export function ActiveChallengeSection({ requests }: { requests: Request[] }) {
         console.error("Error fetching requests and nominations:", error);
       }
     };
-    
+
     fetchNominations();
   }, [requests]); // Add requests as dependency to rerun when it changes
 
@@ -89,31 +92,34 @@ export function ActiveChallengeSection({ requests }: { requests: Request[] }) {
             request,
             [nomination, challenge, nominator, totalContributions],
           ]) => {
-            const Icon = IconMap[nomination.Icon];
+            // Use a default icon if the nomination.Icon is not in IconMap
+            const IconComponent =
+              IconMap[nomination.Icon as IconType] || Coffee;
             return (
-            <Link to={`/challenge/${request.id}`} key={request.id}>
-              <Card className="p-4 hover:bg-muted/50 transition-colors">
-                <div className="flex items-center gap-4">
-                  <div className="h-12 w-12 bg-muted rounded-full flex items-center justify-center">
-                    <Icon className="h-6 w-6 text-muted-foreground" />
-                  </div>
-                  <div className="flex-1">
-                    <h3 className="font-semibold">{challenge.Title}</h3>
-                    <p className="text-sm text-muted-foreground">
-                      NOMINATED BY {nominator.Username}
-                    </p>
-                    <div className="flex items-center gap-4 mt-1 text-sm">
-                      <span>Time left: {timeLeft(nomination.StartedAt)}</span>
-                      <span>{totalContributions} people in the chain</span>
+              <Link to={`/challenge/${request.id}`} key={request.id}>
+                <Card className="p-4 hover:bg-muted/50 transition-colors">
+                  <div className="flex items-center gap-4">
+                    <div className="h-12 w-12 bg-muted rounded-full flex items-center justify-center">
+                      <IconComponent className="h-6 w-6 text-muted-foreground" />
                     </div>
+                    <div className="flex-1">
+                      <h3 className="font-semibold">{challenge.Title}</h3>
+                      <p className="text-sm text-muted-foreground">
+                        NOMINATED BY {nominator.Username}
+                      </p>
+                      <div className="flex items-center gap-4 mt-1 text-sm">
+                        <span>Time left: {timeLeft(nomination.StartedAt)}</span>
+                        <span>{totalContributions} people in the chain</span>
+                      </div>
+                    </div>
+                    <Button variant="ghost" size="icon">
+                      <ChevronRight className="h-4 w-4" />
+                    </Button>
                   </div>
-                  <Button variant="ghost" size="icon">
-                    <ChevronRight className="h-4 w-4" />
-                  </Button>
-                </div>
-              </Card>
-            </Link>
-          )}
+                </Card>
+              </Link>
+            );
+          }
         )}
       </div>
     </div>

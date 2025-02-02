@@ -1,6 +1,6 @@
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ChevronRight, Trees, Coffee } from "lucide-react";
+import { ChevronRight, Trees, Coffee, Dumbbell } from "lucide-react";
 import { Link } from "react-router-dom";
 import {
   addDays,
@@ -60,11 +60,12 @@ const timeLeft = (date: Date) => {
   return `${daysLeft}d ${hoursLeft}h ${minutesLeft}m`;
 };
 
-const MOCK_USER_ID = "DbDAsedHMR5g8h8ohdas"; // TODO: Replace with real user ID
+const MOCK_USER_ID = "5UFtogUUwLOOvfJKoaCO"; // TODO: Replace with real user ID
 
 const IconMap = {
   tree: Trees,
   coffee: Coffee,
+  dumbbell: Dumbbell,
 };
 
 export function RequestsSection({ requests }: { requests: Request[] }) {

@@ -655,4 +655,32 @@ export const getDeedsByPrevId = async (prevDeedId: string): Promise<Deed[]> => {
   }
 };
 
+export const incrementAllPreviousDeedsContributions = async (deedId: string): Promise<void> => {
+  try {
+    let currentDeedId = deedId;
+    
+    while (currentDeedId) {
+      // Get the current deed document
+      const deedRef = doc(db, "deeds", currentDeedId);
+      const deedSnap = await getDoc(deedRef);
+      
+      if (!deedSnap.exists()) {
+        break;
+      }
+      
+      const deedData = deedSnap.data();
+      
+      // Increment NumContributions
+      await updateDoc(deedRef, {
+        NumContributions: (deedData.NumContributions || 0) + 1
+      });
+      
+      // Move to previous deed
+      currentDeedId = deedData.PrevDeedID;
+    }
+  } catch (error) {
+    console.error("Error incrementing previous deeds contributions:", error);
+  }
+};
+
 export type { User, Nomination, Request, Challenge, Deed };
