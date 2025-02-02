@@ -16,6 +16,7 @@ import {
   getChallengeById,
   getUserById,
   User,
+  getTotalDeedGeneratedByChallenge,
 } from "@/firebase_functions";
 import { useEffect, useState } from "react";
 
@@ -65,13 +66,13 @@ const IconMap = {
 
 export function RequestsSection({ requests }: { requests: Request[] }) {
   const [nominationsMap, setNominationsMap] = useState<
-    Map<Request, [Nomination, Challenge, User]>
+    Map<Request, [Nomination, Challenge, User, number]>
   >(new Map());
 
   useEffect(() => {
     const fetchNominations = async () => {
       try {
-        const nominationsMap = new Map<Request, [Nomination, Challenge, User]>();
+        const nominationsMap = new Map<Request, [Nomination, Challenge, User, number]>();
 
         await Promise.all(
           requests.map(async (request) => {
@@ -83,11 +84,14 @@ export function RequestsSection({ requests }: { requests: Request[] }) {
               if (challenge) {
                 const nominator = await getUserById(nomination.Nominator);
                 console.log("Nominator in fetchNominations:", nominator);
+                console.log("Challenge ID in fetchNominations:", challenge.id);
+                const totalContributions = await getTotalDeedGeneratedByChallenge(challenge.id);
                 if (nominator) {
                   nominationsMap.set(request, [
                     nomination,
                     challenge,
                     nominator,
+                    totalContributions,
                   ]);
                 }
               }
@@ -109,7 +113,7 @@ export function RequestsSection({ requests }: { requests: Request[] }) {
       <h2 className="text-2xl font-semibold mb-4">Requests</h2>
       <div className="space-y-4">
         {Array.from(nominationsMap.entries()).map(
-          ([request, [nomination, challenge, nominator]]) => {
+          ([request, [nomination, challenge, nominator, totalContributions]]) => {
             const Icon = IconMap[nomination.Icon];
             return (
               <Link to={`/challenge/${request.id}`} key={request.id}>
@@ -127,7 +131,7 @@ export function RequestsSection({ requests }: { requests: Request[] }) {
                     <div className="flex items-center gap-4 mt-1 text-sm">
                       <span>Time left: {timeLeft(nomination.StartedAt)}</span>
                       <span>
-                        {3 /*request.peopleInChain*/} people in the chain
+                        {totalContributions} people in the chain
                       </span>
                     </div>
                     <Button variant="ghost" size="icon">

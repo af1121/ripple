@@ -326,6 +326,43 @@ export const getTotalDeedsGenerated = async (
   }
 };
 
+export const getTotalDeedGeneratedByChallenge = async (
+  challengeId: string
+): Promise<number> => {
+  try {
+    // Get the challenge to find the creator
+    const challengeRef = doc(db, "challenges", challengeId);
+    const challengeSnap = await getDoc(challengeRef);
+
+    if (!challengeSnap.exists()) {
+      throw new Error("Challenge not found");
+    }
+
+    const challenge = challengeSnap.data();
+    const creatorId = challenge.StartedBy;
+
+    // Get the deed matching the challenge and creator
+    const deedsRef = collection(db, "deeds");
+    const q = query(
+      deedsRef,
+      where("ChallengeID", "==", challengeId),
+      where("UserID", "==", creatorId)
+    );
+    const deedSnap = await getDocs(q);
+
+    if (deedSnap.empty) {
+      return 0;
+    }
+
+    // Return the NumContributions from the first matching deed
+    const deed = deedSnap.docs[0].data();
+    return deed.NumContributions || 0;
+  } catch (error) {
+    console.error("Error getting total deeds for challenge:", error);
+    return 0;
+  }
+};
+
 export const createUser = async (
   userData: Omit<User, "id">
 ): Promise<User | null> => {
