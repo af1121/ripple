@@ -6,6 +6,8 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { ImagePlus } from "lucide-react";
 import { toast } from "sonner";
+import { MOCK_USER_ID } from "@/pages/Index";
+import { createChallenge } from "@/firebase_functions";
 
 interface AddChallengeDialogProps {
   open: boolean;
@@ -26,6 +28,7 @@ export function AddChallengeDialog({
     const file = e.target.files?.[0];
     if (file) {
       setImage(file);
+      // Add image to firebase storage
       const url = URL.createObjectURL(file);
       setPreviewUrl(url);
     }
@@ -37,27 +40,25 @@ export function AddChallengeDialog({
 
     const formData = new FormData(e.currentTarget);
     const data = {
-      title: formData.get("title"),
-      description: formData.get("description"),
-      causeName: formData.get("causeName"),
-      causeUrl: formData.get("causeUrl"),
-    };
+      Title: formData.get("title"),
+      Description: formData.get("description"),
+      CauseName: formData.get("causeName"),
+      CauseURL: formData.get("causeUrl"),
+      StartedAt: new Date(),
+      StartedBy: MOCK_USER_ID,  
+      CoverImage: "tesfdsafdas.png", //Change later to proper image url
+    };    
 
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      const mockChallengeId = Math.random().toString(36).substr(2, 9);
-      
-      toast.success("Challenge created successfully!");
-      setLoading(false);
-      onOpenChange(false);
-      
-      // Trigger the callback to open JoinChallenge dialog
-      onChallengeCreated(
-        mockChallengeId, 
-        data.title as string,
-        data.causeName as string
-      );
+      const challenge = await createChallenge(data);
+      if (challenge) {
+        toast.success("Challenge created successfully!");
+        setLoading(false);
+        onOpenChange(false);
+      } else {
+        toast.error("Failed to create challenge");
+        setLoading(false);
+      }
     } catch (error) {
       console.error("Error:", error);
       toast.error("Failed to create challenge");

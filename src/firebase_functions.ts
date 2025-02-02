@@ -37,10 +37,9 @@ interface Challenge {
   id: string;
   Title: string;
   Description: string;
-  Pictures: string[];
+  CoverImage: string;
   StartedBy: string;
   StartedAt: Date;
-  Location: string;
 }
 
 interface Deed {

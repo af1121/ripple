@@ -20,7 +20,7 @@ import { Link } from "react-router-dom";
 import { CalendarIcon, Users } from "lucide-react";
 import { ActiveChallengeSection } from "@/components/ActiveChallengeSection";
 
-const MOCK_USER_ID = "DbDAsedHMR5g8h8ohdas";
+export const MOCK_USER_ID = "DbDAsedHMR5g8h8ohdas";
 
 const MOCK_ACTIVE_CHALLENGES = [
   {
