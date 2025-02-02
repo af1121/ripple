@@ -8,6 +8,7 @@ import {
   Nomination,
   Challenge,
   getNominationById,
+  getRequestsList,
   getChallengeById,
   getUserById,
   UserType,
@@ -53,6 +54,9 @@ const timeLeft = (date: Date) => {
 
   return `${daysLeft}d ${hoursLeft}h ${minutesLeft}m`;
 };
+ 
+const MOCK_USER_ID = "DbDAsedHMR5g8h8ohdas"; // TODO: Replace with real user ID
+
 
 const IconMap = {
   tree: Trees,
@@ -106,6 +110,15 @@ export function RequestsSection({ requests }: { requests: Request[] }) {
                   <div className="flex items-center gap-4">
                     <div className="h-12 w-12 bg-muted rounded-full flex items-center justify-center">
                       <Icon className="h-6 w-6 text-muted-foreground" />
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="font-semibold">{request.title}</h3>
+                    <p className="text-sm text-muted-foreground">
+                      NOMINATED BY {request.nominatedBy}
+                    </p>
+                    <div className="flex items-center gap-4 mt-1 text-sm">
+                      <span>Time left: {request.timeLeft}</span>
+                      <span>{request.peopleInChain} people in the chain</span>
                     </div>
                     <div className="flex-1">
                       <h3 className="font-semibold">{challenge.title}</h3>
