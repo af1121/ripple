@@ -10,6 +10,8 @@ import {
   getUserById,
   type User,
   getTotalDeedsGenerated,
+  getRequestsByNomineeId,
+  type Request
 } from "@/firebase_functions";
 import { collection, getDocs } from "firebase/firestore";
 import { db } from "@/firebase";
@@ -57,11 +59,46 @@ const MOCK_COMPLETED_CHALLENGES = [
   },
 ];
 
+
 export default function Index() {
+  const [user, setUser] = useState<UserType | null>(null);
+  const [requests, setRequests] = useState<Request[]>([]);
   const [totalDeeds, setTotalDeeds] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const userData: UserType = await getUserById(MOCK_USER_ID);
+        if (userData) {
+          setUser(userData);
+          console.log("Setting user state to:", userData); // Debug log
+        } else {
+          console.error("No user found with ID:", MOCK_USER_ID);
+          setUser(null);
+        }
+      } catch (error) {
+        console.error("Error fetching user:", error);
+        setUser(null);
+      }
+    };
+
+    const fetchRequests = async () => {
+      try {
+        const requests: Request[] = await getRequestsByNomineeId(MOCK_USER_ID, false);
+        if (requests) {
+          setRequests(requests);
+          console.log("Requests:", requests); // Debug log
+        } else {
+          console.error("No requests found with nomineeID:", MOCK_USER_ID);
+          setRequests(null);
+        }
+      } catch (error) { 
+        console.error("Error fetching requests:", error);
+        setRequests([]);
+      }
+    };
+    
     const fetchTotalDeeds = async () => {
       try {
         console.log("Fetching deeds for user:", MOCK_USER_ID);
@@ -74,6 +111,9 @@ export default function Index() {
         setIsLoading(false);
       }
     };
+
+    fetchUser();
+    fetchRequests();
     fetchTotalDeeds();
   }, []);
 
@@ -87,7 +127,7 @@ export default function Index() {
 
       <div className="container max-w-2xl mx-auto p-4">
         <h2 className="text-3xl font-bold mb-6">
-          Hi, Username <span className="wave">👋</span>
+          Hi, {user?.username || "Loading..."} <span className="wave">👋</span>
         </h2>
 
         <p className="text-muted-foreground mb-8 text-center">
@@ -97,7 +137,7 @@ export default function Index() {
 
         <ImpactMetrics goodDeeds={totalDeeds} />
 
-        <RequestsSection />
+        <RequestsSection requests={requests || []} />
 
         <div className="mb-8">
           <h2 className="text-2xl font-semibold mb-4">Active Challenges</h2>
@@ -135,6 +175,7 @@ export default function Index() {
             ))}
           </div>
         </div>
+
 
         <div className="mb-8">
           <h2 className="text-2xl font-semibold mb-4">Completed Challenges</h2>
