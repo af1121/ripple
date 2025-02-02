@@ -147,7 +147,7 @@ export function RequestsSection({ requests }: { requests: Request[] }) {
   };
 
   const handleDecline = async () => {
-    if (!selectedRequest) return;
+    if (!selectedRequest) return; 
     
     try {
       // Delete or mark request as declined
@@ -156,7 +156,7 @@ export function RequestsSection({ requests }: { requests: Request[] }) {
       // Refresh the requests list
       const updatedRequests = requests.filter(r => r.id !== selectedRequest.request.id);
       setNominationsMap(new Map(
-        Array.from(nominationsMap.entries()).filter(([req]) => req.id !== selectedRequest.request.id)
+        Array.from(nominationsMap.entries()).filter(([req ]) => req.id !== selectedRequest.request.id)
       ));
       
       toast.success("Challenge declined");

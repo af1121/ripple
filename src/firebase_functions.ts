@@ -476,20 +476,37 @@ export const createChallenge = async (
   }
 };
 
-export const createDeed = async (
-  deedData: Omit<Deed, "id" | "DoneAt"> & { DoneAt?: Date }
-): Promise<Deed | null> => {
-  try {
-    const data = {
-      ...deedData,
-      DoneAt: Timestamp.fromDate(deedData.DoneAt || new Date()),
-    };
+// export const createDeed = async (
+//   deedData: Omit<Deed, "id" | "DoneAt"> & { DoneAt?: Date }
+// ): Promise<Deed | null> => {
+//   try {
+//     const data = {
+//       ...deedData,
+//       DoneAt: Timestamp.fromDate(deedData.DoneAt || new Date()),
+//     };
 
-    const docRef = await addDoc(collection(db, "deeds"), data);
+//     const docRef = await addDoc(collection(db, "deeds"), data);
+//     return {
+//       id: docRef.id,
+//       ...deedData,
+//       DoneAt: deedData.DoneAt || new Date(),
+//     };
+//   } catch (error) {
+//     console.error("Error creating deed:", error);
+//     return null;
+//   }
+// };
+
+export const createDeed = async (deedData: Omit<Deed, 'id'>): Promise<Deed | null> => {
+  try {
+    // Add the deed to Firestore
+    const deedsRef = collection(db, "deeds");
+    const docRef = await addDoc(deedsRef, deedData);
+
+    // Return the complete deed object with the ID
     return {
-      id: docRef.id,
-      ...deedData,
-      DoneAt: deedData.DoneAt || new Date(),
+      id: docRef.id, // Explicitly include the document ID
+      ...deedData
     };
   } catch (error) {
     console.error("Error creating deed:", error);
@@ -592,9 +609,12 @@ export const getContributionsForUserInChallenge = async (
   userId: string
 ): Promise<string> => {
   try {
+    console.log("challengeId", challengeId);
+    console.log("userId", userId);
     // Get the deed matching the challenge and user
     const deedsRef = collection(db, "deeds");
     const q = query(
+
       deedsRef,
       where("ChallengeID", "==", challengeId),
       where("UserID", "==", userId)
@@ -602,12 +622,17 @@ export const getContributionsForUserInChallenge = async (
     const deedSnap = await getDocs(q);
 
     if (deedSnap.empty) {
+      console.log("no deed found");
       return "";
     }
 
     // Return the deed id from the first matching deed
-    const deed = deedSnap.docs[0].data();
-    return deed.id || "";
+    // const deed = deedSnap.docs[0].data(); 
+    // return deed.id || "";
+    console.log("deedSnap.docs[0].id: ", deedSnap.docs[0].id);
+    return deedSnap.docs[0].id;
+
+
   } catch (error) {
     console.error("Error getting contributions for user in challenge:", error);
     return "";
