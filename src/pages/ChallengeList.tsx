@@ -52,7 +52,7 @@ export default function ChallengeList() {
         <JoinChallenge
           open={showJoinDialog}
           onOpenChange={setShowJoinDialog}
-          challengeId={newChallenge.id}
+          challenge={newChallenge}
           challengeTitle={newChallenge.title}
           causeName={newChallenge.causeName}
           userId={MOCK_USER_ID}

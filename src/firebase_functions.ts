@@ -8,6 +8,7 @@ import {
   query,
   where,
   deleteDoc,
+  updateDoc,
 } from "firebase/firestore";
 import { db } from "./firebase";
 
@@ -21,10 +22,9 @@ interface Nomination {
   id: string;
   Nominator: string;
   ChallengeID: string;
-  StartedAt: Date;
-  Text: string;
+  StartedAt: Date; 
   Icon: string;
-}
+} 
 
 interface Request {
   id: string;
@@ -331,6 +331,22 @@ export const getTotalDeedsGenerated = async (
     return 0;
   }
 };
+ 
+export const updateDeedNextId = async (
+  deedId: string, 
+  nextDeedId: string
+): Promise<boolean> => {
+  try {
+    const deedRef = doc(db, "deeds", deedId);
+    await updateDoc(deedRef, {
+      NextDeedID: nextDeedId
+    });
+    return true;
+  } catch (error) {
+    console.error("Error updating deed:", error);
+    return false;
+  }
+};
 
 export const getTotalDeedGeneratedByChallenge = async (
   challengeId: string
@@ -561,7 +577,7 @@ export const getRequestsList = async (
 export const getContributionsForUserInChallenge = async (
   challengeId: string,
   userId: string
-): Promise<number> => {
+): Promise<string> => {
   try {
     // Get the deed matching the challenge and user
     const deedsRef = collection(db, "deeds");
@@ -573,15 +589,97 @@ export const getContributionsForUserInChallenge = async (
     const deedSnap = await getDocs(q);
 
     if (deedSnap.empty) {
-      return 0;
+      return "";
     }
 
-    // Return the NumContributions from the first matching deed
+    // Return the deed id from the first matching deed
     const deed = deedSnap.docs[0].data();
-    return deed.NumContributions || 0;
+    return deed.id || "";
   } catch (error) {
     console.error("Error getting contributions for user in challenge:", error);
-    return 0;
+    return "";
+  }
+};
+
+export const getRequestByUserAndChallenge = async (
+  userId: string,
+  challengeId: string
+): Promise<Request | null> => {
+  try {
+    // First get all requests for this user
+    const requestsRef = collection(db, "requests");
+    const userRequestsQuery = query(
+      requestsRef,
+      where("NomineeID", "==", userId)
+    );
+    const userRequests = await getDocs(userRequestsQuery);
+
+    // For each request, get its nomination and check the challenge ID
+    for (const requestDoc of userRequests.docs) {
+      const request = requestDoc.data() as Request;
+      const nomination = await getNominationById(request.NominationID);
+      
+      if (nomination && nomination.ChallengeID === challengeId) {
+        return {
+          id: requestDoc.id,
+          ...request
+        };
+      }
+    }
+
+    return null;
+  } catch (error) {
+    console.error("Error getting request for user and challenge:", error);
+    return null;
+  }
+};
+
+export const getDeedsByPrevId = async (prevDeedId: string): Promise<Deed[]> => {
+  try {
+    const deedsRef = collection(db, "deeds");
+    const q = query(
+      deedsRef,
+      where("PrevDeedID", "==", prevDeedId)
+    );
+    
+    const querySnapshot = await getDocs(q);
+    const deeds = querySnapshot.docs.map((doc) => ({
+      id: doc.id,
+      ...(doc.data() as Omit<Deed, "id">),
+    }));
+
+    return deeds;
+  } catch (error) {
+    console.error("Error getting deeds by previous deed ID:", error);
+    return [];
+  }
+};
+
+export const incrementAllPreviousDeedsContributions = async (deedId: string): Promise<void> => {
+  try {
+    let currentDeedId = deedId;
+    
+    while (currentDeedId) {
+      // Get the current deed document
+      const deedRef = doc(db, "deeds", currentDeedId);
+      const deedSnap = await getDoc(deedRef);
+      
+      if (!deedSnap.exists()) {
+        break;
+      }
+      
+      const deedData = deedSnap.data();
+      
+      // Increment NumContributions
+      await updateDoc(deedRef, {
+        NumContributions: (deedData.NumContributions || 0) + 1
+      });
+      
+      // Move to previous deed
+      currentDeedId = deedData.PrevDeedID;
+    }
+  } catch (error) {
+    console.error("Error incrementing previous deeds contributions:", error);
   }
 };
 

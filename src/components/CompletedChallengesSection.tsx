@@ -11,7 +11,7 @@ import {
 } from "@/firebase_functions";
 import { useEffect, useState } from "react";
 
-interface CompletedChallenge {
+export interface CompletedChallenge {
   id: string;
   challenge: Challenge;
   completedDate: Date;
@@ -31,7 +31,7 @@ export function CompletedChallengesSection({ userId }: { userId: string }) {
 
         // Create a map to store unique challenges
         const challengeMap = new Map<string, CompletedChallenge>();
-
+        
         // Process each deed
         await Promise.all(
           userDeeds.map(async (deed: Deed) => {
@@ -66,7 +66,7 @@ export function CompletedChallengesSection({ userId }: { userId: string }) {
       <div className="space-y-4">
         {completedChallenges.map((completedChallenge) => (
           <Link
-            to={`/challenge/${completedChallenge.id}`}
+            to={`/completed-challenge/${completedChallenge.id}/${userId}`}
             key={completedChallenge.id}
           >
             <Card className="p-4 hover:bg-muted/50 transition-colors">

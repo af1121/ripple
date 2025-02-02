@@ -7,6 +7,7 @@ import Index from "./pages/Index";
 import ChallengeDetail from "./pages/ChallengeDetail";
 import NotFound from "./pages/NotFound";
 import { WaveBackground } from "@/components/WaveBackground";
+import CompletedChallengeDetail from "./pages/CompletedChallengeDetail";
 
 const queryClient = new QueryClient();
 
@@ -20,6 +21,7 @@ const App = () => (
         <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/challenge/:requestId" element={<ChallengeDetail />} />
+          <Route path="/completed-challenge/:challengeId/:userId" element={<CompletedChallengeDetail />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>

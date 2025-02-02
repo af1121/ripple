@@ -7,7 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import { ImagePlus, MapPin } from "lucide-react";
 import { createShareMessage, shareViaSMS } from "@/lib/shareUtils";
-import { Challenge, createDeed, getUserById } from "@/firebase_functions";
+import { Challenge, createDeed, createNomination, deleteRequest, getContributionsForUserInChallenge, getRequestByUserAndChallenge, getUserById, Nomination } from "@/firebase_functions";
 import { storage } from "@/firebase";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 
@@ -19,11 +19,13 @@ interface Location {
 interface JoinChallengeProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  challengeId: string;
-  challengeTitle: string;
-  causeName?: string;
-  userId?: string;
-  prevDeedId?: string | null;
+  challenge: Challenge | null;
+  userId: string;
+  prevUserId: string | null;
+  nomination: Nomination | null;
+  // challengeTitle: string;
+  // causeName?: string;
+  // username: string;
 }
 
 interface NomineeInput {
@@ -37,7 +39,9 @@ export function JoinChallenge({
   challengeTitle,
   causeName,
   userId,
-  prevDeedId,
+  prevUserId,
+  nomination,
+  // username 
 }: JoinChallengeProps) {
   const [loading, setLoading] = useState(false);
   const [nominees, setNominees] = useState<NomineeInput[]>([{ phone: "" }]);
@@ -164,8 +168,23 @@ export function JoinChallenge({
     }
 
     const validNominees = nominees.filter(n => n.phone);
+     
+    validNominees.forEach(async nominee => {
+      const nominationData = {
+        ChallengeID: challenge?.id,
+        Icon: nomination?.Icon,
+        Nominator: userId,
+        StartedAt: new Date(),
+      }
+      const newNomination = await createNomination(nominationData);
+      if (!newNomination) {
+        throw new Error("Failed to create nomination");
+      }
+    });
 
     const imageUrl = await uploadImage(image);
+
+    const prevDeedId = await getContributionsForUserInChallenge(challenge?.id, prevUserId);
 
     try {
 
@@ -177,12 +196,25 @@ export function JoinChallenge({
         Location: location,
         NumContributions: 1,
         PrevDeedID: prevDeedId,
-        NextDeedID: null,
+        NextDeedID: null, 
         UserID: userId,
         // nominees: validNominees,
       };
 
       const deed = await createDeed(data);
+      if (deed) {
+        const request = await getRequestByUserAndChallenge(userId, challenge?.id);
+          if (request) {
+            // Found the request
+            console.log(request);
+            const deleted = await deleteRequest(request.id);
+            if (deleted) {
+              console.log("Request deleted successfully");
+            } else {
+              console.log("Request deletion failed");
+            }
+          } 
+      }
                                                               
       if (!deed) {
         throw new Error("Failed to create deed");

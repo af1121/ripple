@@ -15,7 +15,7 @@ import { Link } from "react-router-dom";
 import { ChallengeMap } from "@/components/ChallengeMap";
 import { ChallengeChain, ChainNode } from "@/components/ChallengeChain";
 import { JoinChallenge } from "@/components/JoinChallenge";
-import { getNominationById, getRequestById, getTotalDeedGeneratedByChallenge, getUserById, Nomination, User, Request, Challenge, getDeedById, getContributionsForUserInChallenge, getDeedsByPrevId } from "@/firebase_functions";
+import { getNominationById, getRequestById, getTotalDeedGeneratedByChallenge, getUserById, Nomination, User, Request, Challenge, getDeedById, getContributionsForUserInChallenge, Deed, getDeedsByPrevId } from "@/firebase_functions";
 import { getChallengeById } from "@/firebase_functions";
 
 const MOCK_CHALLENGE = {
@@ -54,6 +54,8 @@ const MOCK_CHAIN = (() => {
 
   const getRandomInt = (min: number, max: number) => 
     Math.floor(Math.random() * (max - min + 1)) + min;
+
+
 
   // Create root participant
   const rootDate = new Date("2024-03-01T12:00:00Z");
@@ -99,16 +101,18 @@ const MOCK_CHAIN = (() => {
   return chain;
 })();
 
-export default function ChallengeDetail() {
-  const { requestId } = useParams();
-  console.log("Request ID:", requestId);
+export default function CompletedChallengeDetail() {
+  const { challengeId, userId } = useParams();
+  console.log("Challenge ID:", challengeId);
+  console.log("User ID:", userId);
   const [challenge, setChallenge] = useState<Challenge | null>(null);
   const [request, setRequest] = useState<Request | null>(null);
   const [nomination, setNomination] = useState<Nomination>(null);
   const [nominator, setNominator] = useState<User | null>(null);
   const [totalContributions, setTotalContributions] = useState<number>(0);
-  const [chain, setChain] = useState<ChainNode[]>([]);
+  const [deed, setDeed] = useState<Deed | null>(null);
   const [user, setUser] = useState<User | null>(null);
+  const [chain, setChain] = useState<ChainNode[]>([]);
 
   useEffect(() => {
     const fetchChain = async () => {
@@ -116,34 +120,19 @@ export default function ChallengeDetail() {
       setChain(chain);
     };
     fetchChain();
-  }, [challenge]);
-
-  // const fetchChain = async () => {
-  //   const chain = await REAL_CHAIN();
-  //   setChain(chain);
-  // };
+  }, []);
 
   const REAL_CHAIN = async () => {
     const chain: ChainNode[] = [];
-    const user = await getUserById(challenge?.StartedBy!);
-    console.log("Root user:", user);
-    console.log("Challenge ID:", challenge?.id);
-    console.log("User ID:", user?.id);
-    const deedID = await getContributionsForUserInChallenge(challenge?.id!, user?.id!);
-    console.log("Deed ID:", deedID);
-    const deed = await getDeedById(deedID!);  
-    console.log("Deed:", deed);
-    setUser(user);  
-
-
-
+    const user = await getUserById(userId!);
+    setUser(user);
     chain.push({
-      id: user.id,      
+      id: userId!,
       userName: user?.Username,
       createdAt: deed?.DoneAt.toISOString(),
-      location: deed.Location,
+      location: deed?.Location,
     });
- 
+
     const children = await getDeedsByPrevId(deed?.id);
     while (children.length > 0) {
       for (const child of children) {
@@ -153,7 +142,7 @@ export default function ChallengeDetail() {
           userName: user.Username,
           createdAt: child.DoneAt.toISOString(),
           location: child.Location,
-          nominatedBy: child.PrevDeedID 
+          nominatedBy: child.PrevDeedID
         };
 
         chain.push(participant);
@@ -168,33 +157,34 @@ export default function ChallengeDetail() {
   useEffect(() => { 
     const fetchNominations = async () => {
       try {
-        const request = await getRequestById(requestId!);
-        if (request) {
-          setRequest(request);
-          const nomination = await getNominationById(request.NominationID);
-          console.log("Nomination:", nomination);
-          if (nomination) {
-            setNomination(nomination); 
-            const challenge = await getChallengeById(nomination.ChallengeID);
-            console.log("Challenge:", challenge);
-            if (challenge) {
-              setChallenge(challenge);
-              const nominator = await getUserById(nomination.Nominator);
-              const totalContributions =
-                await getTotalDeedGeneratedByChallenge(challenge?.id);
-              if (nominator) {
-                setNominator(nominator);
-                console.log("Nominator:", nominator);
-              }
-
-              if (totalContributions) {
-                setTotalContributions(totalContributions);
-                console.log("Total contributions:", totalContributions);
-              }
-            }
-          }
+        const challenge = await getChallengeById(challengeId!);
+        setChallenge(challenge);
+        const deedId = await getContributionsForUserInChallenge(challengeId!, userId!);
+        const deed = await getDeedById(deedId!);
+        if (deed) {
+          setDeed(deed);
         }
-
+        // const request = await getRequestById(requestId!);
+        // if (request) {  
+        //   setRequest(request);
+        //   const nomination = await getNominationById(request.NominationID);
+        //   if (nomination) {
+        //     setNomination(nomination); 
+        //     const challenge = await getChallengeById(nomination.ChallengeID);
+        //     if (challenge) {
+        //       setChallenge(challenge);
+        //       const nominator = await getUserById(nomination.Nominator);
+        //       const totalContributions =
+        //         await getTotalDeedGeneratedByChallenge(challenge?.id);
+        //       if (nominator) {
+        //         setNominator(nominator);
+        //       }
+        //       if (totalContributions) {
+        //         setTotalContributions(totalContributions);
+        //       }
+        //     }
+        //   }
+        // }
       } catch (error) {
         console.error("Error fetching requests and nominations:", error);
       }
@@ -231,7 +221,7 @@ export default function ChallengeDetail() {
             />
             <div className="p-6">
               <div className="flex items-center gap-4 mb-4">
-                <Badge variant="secondary">Active Challenge</Badge>
+                <Badge variant="secondary" className="bg-[#26c774] text-white">Completed Challenge</Badge>
                 {challenge?.CauseName && (
                   <Badge variant="outline" className="flex items-center gap-1">
                     <Heart className="w-3 h-3" />
@@ -254,11 +244,11 @@ export default function ChallengeDetail() {
                 </div>
                 <div className="flex items-center gap-2">
                   <Users className="w-4 h-4 text-muted-foreground" />
-                  <span>{totalContributions} participants</span>
-                </div>
+                  <span>{deed?.NumContributions || 1} participants</span>
+                </div> 
               </div>
 
-              <div className="flex gap-4">
+              {/* <div className="flex gap-4">
                 <Button
                   size="lg"
                   onClick={() => setShowJoinDialog(true)}
@@ -269,22 +259,22 @@ export default function ChallengeDetail() {
                 <Button size="lg" variant="outline">
                   <Share2 className="w-4 h-4" />
                 </Button>
-              </div>
+              </div> */}
             </div>
           </Card>
-          <ChallengeChain participants={chain} />
+          <ChallengeChain participants={chain || []} />
         </div>
 
         <div className="space-y-8">
-          {showParticipationForm && (
-            <div className="space-y-4">
+          {/* {showParticipationForm && (
+            <div className="space-y-4"> 
               <h2 className="text-2xl font-semibold">Join Challenge</h2>
               <ParticipationForm
                 challengeId={challenge?.id}
                 onSubmit={handleParticipation}
               />
             </div>
-          )}
+          )} */}
 
           {challenge?.CauseName && (
             <Card className="p-6">
@@ -295,7 +285,7 @@ export default function ChallengeDetail() {
               </p>
               <Button
                 variant="outline"
-                className="w-full"
+                className="w-full"    
                 onClick={() => window.open(challenge?.CauseURL, "_blank")}
               >
                 Donate Now
@@ -305,7 +295,7 @@ export default function ChallengeDetail() {
         </div>
       </div>
 
-      <JoinChallenge
+      {/* <JoinChallenge
         open={showJoinDialog}
         onOpenChange={setShowJoinDialog}
         challenge={challenge || null}
@@ -313,7 +303,7 @@ export default function ChallengeDetail() {
         prevUserId={nominator?.id}
         nomination={nomination}
         // username={username}
-      />
+      /> */}
     </div>
   );
 }
