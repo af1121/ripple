@@ -166,7 +166,7 @@ export default function Index() {
 
         <ActiveChallengeSection requests={activeRequests || []} />
 
-        <div className="mb-8">
+        {/* <div className="mb-8">
           <h2 className="text-2xl font-semibold mb-4">Active Challenges</h2>
           <div className="space-y-4">
             {MOCK_ACTIVE_CHALLENGES.map((challenge) => (
@@ -193,7 +193,7 @@ export default function Index() {
               </Link>
             ))}
           </div>
-        </div>
+        </div> */}
 
 
         <div className="mb-8">
