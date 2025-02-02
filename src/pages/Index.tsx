@@ -6,6 +6,7 @@ import { Search, Trophy, ChevronRight } from "lucide-react";
 import { ImpactMetrics } from "@/components/ImpactMetrics";
 import { AddChallengeButton } from "@/components/AddChallengeButton";
 import { RequestsSection } from "@/components/RequestsSection";
+import { populateChallenges, populateDB } from "@/data/mockDB";
 import {
   getUserById,
   type User,
@@ -23,7 +24,7 @@ import { CompletedChallengesSection } from "@/components/CompletedChallengesSect
 import { WhyDialog } from "@/components/WhyDialog";
 import { clearDatabase, populateDatabase } from "@/data/mockDBData";
 
-export const MOCK_USER_ID = "5UFtogUUwLOOvfJKoaCO";
+export const MOCK_USER_ID = "ThKZKgw7aa3tel9KKGk9";
 
 const MOCK_ACTIVE_CHALLENGES = [
   {
