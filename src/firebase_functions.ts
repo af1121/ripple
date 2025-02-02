@@ -48,7 +48,7 @@ interface Deed {
   id: string;
   UserID: string;
   ChallengeID: string;
-  Pictures: string[];
+  Image: string;
   Comment: string;
   DoneAt: Date;
   Location: string;

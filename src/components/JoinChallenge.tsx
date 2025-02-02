@@ -7,14 +7,16 @@ import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import { ImagePlus, MapPin } from "lucide-react";
 import { createShareMessage, shareViaSMS } from "@/lib/shareUtils";
+import { Challenge, getUserById } from "@/firebase_functions";
 
 interface JoinChallengeProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  challengeId: string;
-  challengeTitle: string;
-  causeName?: string;
-  username: string;
+  challenge: Challenge | null;
+  userId: string;
+  // challengeTitle: string;
+  // causeName?: string;
+  // username: string;
 }
 
 interface NomineeInput {
@@ -24,10 +26,9 @@ interface NomineeInput {
 export function JoinChallenge({ 
   open, 
   onOpenChange, 
-  challengeId,
-  challengeTitle,
-  causeName,
-  username 
+  challenge,
+  userId,
+  // username 
 }: JoinChallengeProps) {
   const [loading, setLoading] = useState(false);
   const [nominees, setNominees] = useState<NomineeInput[]>([{ phone: "" }]);
@@ -37,6 +38,16 @@ export function JoinChallenge({
   const [location, setLocation] = useState<{lat: number; lng: number} | null>(null);
   const [locationError, setLocationError] = useState<string>("");
   const [isCollectingLocation, setIsCollectingLocation] = useState(false);
+  const [username, setUsername] = useState("");
+
+
+  useEffect(() => {
+    const fetchUsername = async () => {
+      const user = await getUserById(userId);
+      setUsername(user?.Username || "");
+    };
+    fetchUsername();
+  }, [userId]);
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -66,11 +77,11 @@ export function JoinChallenge({
   };
 
   const handleShare = async (nominees: NomineeInput[]) => {
-    const challengeUrl = `${window.location.origin}/challenge/${challengeId}`;
+    const challengeUrl = `${window.location.origin}/challenge/${challenge?.id}`;
     const message = createShareMessage({
       username,
-      challengeTitle,
-      causeName,
+      challengeTitle: challenge?.Title || "",
+      causeName: challenge?.CauseName || "",
       challengeUrl,
     });
 
@@ -127,8 +138,9 @@ export function JoinChallenge({
     const validNominees = nominees.filter(n => n.phone);
 
     const data = {
-      challengeId,
-      image,
+      UserID: userId,
+      ChallengeID: challenge?.id,
+      image,  
       description,
       nominees: validNominees,
       location,

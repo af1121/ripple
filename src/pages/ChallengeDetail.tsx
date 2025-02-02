@@ -245,10 +245,9 @@ export default function ChallengeDetail() {
       <JoinChallenge
         open={showJoinDialog}
         onOpenChange={setShowJoinDialog}
-        challengeId={challenge?.id}
-        challengeTitle={challenge?.Title}
-        causeName={challenge?.CauseName}
-        username={username}
+        challenge={challenge || null}
+        userId={request?.NomineeID}
+        // username={username}
       />
     </div>
   );
