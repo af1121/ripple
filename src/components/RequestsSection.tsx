@@ -17,8 +17,11 @@ import {
   getUserById,
   User,
   getTotalDeedGeneratedByChallenge,
+  deleteRequest,
 } from "@/firebase_functions";
 import { useEffect, useState } from "react";
+import { toast } from "react-hot-toast";
+import { ChallengeRequestDialog } from "@/components/ChallengeRequestDialog";
 
 // interface Request {
 //   id: string;
@@ -68,6 +71,12 @@ export function RequestsSection({ requests }: { requests: Request[] }) {
   const [nominationsMap, setNominationsMap] = useState<
     Map<Request, [Nomination, Challenge, User, number]>
   >(new Map());
+  const [selectedRequest, setSelectedRequest] = useState<{
+    request: Request;
+    nomination: Nomination;
+    challenge: Challenge;
+    nominator: User;
+  } | null>(null);
 
   useEffect(() => {
     const fetchNominations = async () => {
@@ -108,43 +117,106 @@ export function RequestsSection({ requests }: { requests: Request[] }) {
     fetchNominations();
   }, [requests]); // Add requests as dependency to rerun when it changes
 
+  const handleAccept = async () => {
+    if (!selectedRequest) return;
+    
+    try {
+      // Update request to be active
+     // await createRequest(selectedRequest.request.id, { Active: true });
+      
+      // Refresh the requests list
+      const updatedRequests = requests.filter(r => r.id !== selectedRequest.request.id);
+      setNominationsMap(new Map(
+        Array.from(nominationsMap.entries()).filter(([req]) => req.id !== selectedRequest.request.id)
+      ));
+      
+      toast.success("Challenge accepted!");
+    } catch (error) {
+      console.error("Error accepting challenge:", error);
+      toast.error("Failed to accept challenge");
+    }
+    
+    setSelectedRequest(null);
+  };
+
+  const handleDecline = async () => {
+    if (!selectedRequest) return;
+    
+    try {
+      // Delete or mark request as declined
+      await deleteRequest(selectedRequest.request.id);
+      
+      // Refresh the requests list
+      const updatedRequests = requests.filter(r => r.id !== selectedRequest.request.id);
+      setNominationsMap(new Map(
+        Array.from(nominationsMap.entries()).filter(([req]) => req.id !== selectedRequest.request.id)
+      ));
+      
+      toast.success("Challenge declined");
+    } catch (error) {
+      console.error("Error declining challenge:", error);
+      toast.error("Failed to decline challenge");
+    }
+    
+    setSelectedRequest(null);
+  };
+
   return (
     <div className="mb-8">
       <h2 className="text-2xl font-semibold mb-4">Requests</h2>
       <div className="space-y-4">
         {Array.from(nominationsMap.entries()).map(
-          ([
-            request,
-            [nomination, challenge, nominator, totalContributions],
-          ]) => {
-            const Icon = IconMap[nomination.Icon];
-            return (
-              <Link to={`/challenge/${request.id}`} key={request.id}>
-                <Card className="p-4 hover:bg-muted/50 transition-colors">
-                  <div className="flex items-center gap-4">
-                    <div className="h-12 w-12 bg-muted rounded-full flex items-center justify-center">
-                      <Icon className="h-6 w-6 text-muted-foreground" />
-                    </div>
-                    <div className="flex-1">
-                      <h3 className="font-semibold">{challenge.Title}</h3>
-                      <p className="text-sm text-muted-foreground">
-                        NOMINATED BY {nominator.Username}
-                      </p>
-                      <div className="flex items-center gap-4 mt-1 text-sm">
-                        <span>Time left: {timeLeft(nomination.StartedAt)}</span>
-                        <span>{totalContributions} people in the chain</span>
-                      </div>
-                    </div>
-                    <Button variant="ghost" size="icon">
-                      <ChevronRight className="h-4 w-4" />
-                    </Button>
+          ([request, [nomination, challenge, nominator, totalContributions]]) => (
+            <Card 
+              key={request.id}
+              className="p-4 hover:bg-muted/50 transition-colors cursor-pointer"
+              onClick={() => setSelectedRequest({
+                request,
+                nomination,
+                challenge,
+                nominator
+              })}
+            >
+              <div className="flex items-center gap-4">
+                <div className="h-12 w-12 bg-muted rounded-full flex items-center justify-center">
+                  {(() => {
+                    const Icon = IconMap[nomination.Icon];
+                    return <Icon className="h-6 w-6 text-muted-foreground" />;
+                  })()}
+                </div>
+                <div className="flex-1">
+                  <h3 className="font-semibold">{challenge.Title}</h3>
+                  <p className="text-sm text-muted-foreground">
+                    NOMINATED BY {nominator.Username}
+                  </p>
+                  <div className="flex items-center gap-4 mt-1 text-sm">
+                    <span>Time left: {timeLeft(nomination.StartedAt)}</span>
+                    <span>{totalContributions} people in the chain</span>
                   </div>
-                </Card>
-              </Link>
-            );
-          }
+                </div>
+                <Button variant="ghost" size="icon">
+                  <ChevronRight className="h-4 w-4" />
+                </Button>
+              </div>
+            </Card>
+          )
         )}
       </div>
+
+      {selectedRequest && (
+        <ChallengeRequestDialog
+          open={!!selectedRequest}
+          onOpenChange={(open) => !open && setSelectedRequest(null)}
+          nominatorName={selectedRequest.nominator.Username}
+          challengeTitle={selectedRequest.challenge.Title}
+          onAccept={handleAccept}
+          onDecline={handleDecline}
+          stats={{
+            totalPeople: nominationsMap.get(selectedRequest.request)?.[3] || 0,
+            timeLeft: timeLeft(selectedRequest.nomination.StartedAt)
+          }}
+        />
+      )}
     </div>
   );
 }
