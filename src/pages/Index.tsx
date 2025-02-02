@@ -18,6 +18,7 @@ import { db } from "@/firebase";
 import { Card } from "@/components/ui/card";
 import { Link } from "react-router-dom";
 import { CalendarIcon, Users } from "lucide-react";
+import { ActiveChallengeSection } from "@/components/ActiveChallengeSection";
 
 const MOCK_USER_ID = "DbDAsedHMR5g8h8ohdas";
 
@@ -59,6 +60,7 @@ const MOCK_COMPLETED_CHALLENGES = [
   },
 ];
 
+
 export default function Index() {
   const [user, setUser] = useState<User | null>(null);
   const [requests, setRequests] = useState<Request[]>([]);
@@ -67,7 +69,7 @@ export default function Index() {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const fetchUser = async () => { 
+    const fetchUser = async () => {
       try {
         const userData: User = await getUserById(MOCK_USER_ID);
         if (userData) {
@@ -110,7 +112,7 @@ export default function Index() {
         );
         if (requests) {
           setActiveRequests(requests);
-          console.log("Active Requests:", requests); // Debug log
+          console.log("Requests:", requests); // Debug log
         } else {
           console.error("No requests found with nomineeID:", MOCK_USER_ID);
           setActiveRequests(null);
@@ -162,6 +164,8 @@ export default function Index() {
 
         <RequestsSection requests={requests || []} />
 
+        <ActiveChallengeSection requests={activeRequests || []} />
+
         <div className="mb-8">
           <h2 className="text-2xl font-semibold mb-4">Active Challenges</h2>
           <div className="space-y-4">
@@ -191,6 +195,7 @@ export default function Index() {
             ))}
           </div>
         </div>
+
 
         <div className="mb-8">
           <h2 className="text-2xl font-semibold mb-4">Completed Challenges</h2>
