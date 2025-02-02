@@ -24,7 +24,7 @@ interface Nomination {
   ChallengeID: string;
   StartedAt: Date; 
   Icon: string;
-}
+} 
 
 interface Request {
   id: string;
