@@ -20,6 +20,7 @@ import { Link } from "react-router-dom";
 import { CalendarIcon, Users } from "lucide-react";
 import { ActiveChallengeSection } from "@/components/ActiveChallengeSection";
 import { CompletedChallengesSection } from "@/components/CompletedChallengesSection";
+import { WhyDialog } from "@/components/WhyDialog";
 
 export const MOCK_USER_ID = "DbDAsedHMR5g8h8ohdas";
 
@@ -67,6 +68,7 @@ export default function Index() {
   const [activeRequests, setActiveRequests] = useState<Request[]>([]);
   const [totalDeeds, setTotalDeeds] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
+  const [showWhyDialog, setShowWhyDialog] = useState(false);
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -153,7 +155,18 @@ export default function Index() {
           impact
         </p>
 
+        <div className="mb-2 text-center">
+          <button
+            onClick={() => setShowWhyDialog(true)}
+            className="text-sm text-muted-foreground hover:text-teal-600 hover:underline"
+          >
+            Why are we doing this?
+          </button>
+        </div>
+
         <ImpactMetrics goodDeeds={totalDeeds} />
+
+        <WhyDialog open={showWhyDialog} onOpenChange={setShowWhyDialog} />
 
         <RequestsSection requests={requests || []} />
 
