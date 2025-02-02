@@ -18,17 +18,31 @@ import { JoinChallenge } from "@/components/JoinChallenge";
 import { getNominationById, getRequestById, getTotalDeedGeneratedByChallenge, getUserById, Nomination, User, Request, Challenge, getDeedById, getContributionsForUserInChallenge, getDeedsByPrevId } from "@/firebase_functions";
 import { getChallengeById } from "@/firebase_functions";
 
-const MOCK_CHALLENGE = {
-  id: "1",
-  title: "30 Days of Fitness",
-  description: "Join the fitness revolution! Complete 30 days of progressive workouts and share your journey with the community. Together, we'll build healthier habits and inspire others to join the movement.",
-  startDate: "2024-03-01",
-  endDate: "2024-03-30",
-  participants: 100,
-  causeName: "Global Health Foundation",
-  causeURL: "https://example.com/cause",
-  imageUrl: "https://images.unsplash.com/photo-1517836357463-d25dfeac3438?auto=format&fit=crop&q=80",
-};
+const MOCK_CHALLENGES = [
+  {
+    id: "1",
+    title: "30 Days of Fitness",
+    description: "Join the fitness revolution! Complete 30 days of progressive workouts and share your journey with the community.",
+    startDate: "2024-03-01",
+    endDate: "2024-03-30",
+    participants: 100,
+    causeName: "Global Health Foundation",
+    causeURL: "https://example.com/cause",
+    imageUrl: "https://images.unsplash.com/photo-1517836357463-d25dfeac3438?auto=format&fit=crop&q=80",
+  },
+  {
+    id: "2",
+    title: "Plant a Tree Challenge",
+    description: "Help combat climate change by joining our global tree-planting initiative. One person, one tree, one planet.",
+    startDate: "2024-02-15",
+    endDate: "2024-04-15",
+    participants: 60,  // Changed from 75 to 60
+    causeName: "Earth Restoration Project",
+    causeURL: "https://example.com/earth",
+    imageUrl: "https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?auto=format&fit=crop&q=80",
+  },
+  // ... other challenges
+];
 
 const MOCK_CHAIN = (() => {
   const chain: ChainNode[] = [];
@@ -111,6 +125,14 @@ export default function ChallengeDetail() {
   const [user, setUser] = useState<User | null>(null);
 
   useEffect(() => {
+    // Use MOCK_CHAIN instead of REAL_CHAIN
+    setChain(MOCK_CHAIN);
+    fetchNominations();
+  }, [challenge]);
+
+  // Comment out or remove REAL_CHAIN since we're not using it
+  // const REAL_CHAIN = async () => { ... };
+/*
     const fetchChain = async () => {
       await fetchNominations();
       console.log("challenge::::::", challenge);
@@ -161,6 +183,7 @@ export default function ChallengeDetail() {
     }
     return chain;
   };
+*/
 
   const fetchNominations = async () => {
     try {
