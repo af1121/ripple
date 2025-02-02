@@ -60,7 +60,7 @@ export function ChallengeChain({ participants }: { participants: ChainNode[] }) 
     const options: Options = {
       nodes: {
         shape: "circularImage",
-        size: window.innerWidth < 768 ? 30 : 40,
+        size: window.innerWidth < 768 ? 40 : 50,
         font: {
           size: window.innerWidth < 768 ? 14 : 24,
           color: "#64748b",
@@ -114,7 +114,7 @@ export function ChallengeChain({ participants }: { participants: ChainNode[] }) 
           direction: "UD",
           sortMethod: "directed",
           nodeSpacing: window.innerWidth < 768 ? 100 : 100,
-          levelSeparation: window.innerWidth < 768 ? 100 : 120,
+          levelSeparation: window.innerWidth < 768 ? 180 : 200,
           treeSpacing: window.innerWidth < 768 ? 100 : 100,
           parentCentralization: true,
           blockShifting: true,

@@ -36,6 +36,17 @@ const MOCK_CHAIN = (() => {
     { name: "Tokyo", coords: { lat: 35.6762, lng: 139.6503 } },
     { name: "Sydney", coords: { lat: -33.8688, lng: 151.2093 } },
     { name: "Berlin", coords: { lat: 52.5200, lng: 13.4050 } },
+    { name: "Moscow", coords: { lat: 55.7558, lng: 37.6173 } },
+    { name: "Singapore", coords: { lat: 1.3521, lng: 103.8198 } },
+    { name: "Buenos Aires", coords: { lat: -34.6037, lng: -58.3816 } },
+    { name: "Nairobi", coords: { lat: -1.2921, lng: 36.8219 } },
+    { name: "Cape Town", coords: { lat: -33.9249, lng: 18.4241 } },
+    { name: "Rio de Janeiro", coords: { lat: -22.9068, lng: -43.1729 } },
+    { name: "Barcelona", coords: { lat: 41.3888, lng: 2.1589 } },
+    { name: "Rome", coords: { lat: 41.9028, lng: 12.4964 } },
+    { name: "Madrid", coords: { lat: 40.4637, lng: -3.7492 } },
+    { name: "Amsterdam", coords: { lat: 52.3702, lng: 4.8952 } },
+    { name: "Vienna", coords: { lat: 48.2082, lng: 16.3738 } },
   ];
 
   const getRandomInt = (min: number, max: number) => 
