@@ -66,7 +66,7 @@ export default function Index() {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const fetchUser = async () => {
+    const fetchUser = async () => { 
       try {
         const userData: User = await getUserById(MOCK_USER_ID);
         if (userData) {
