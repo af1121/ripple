@@ -13,34 +13,34 @@ import { db } from "./firebase";
 
 interface User {
   id: string;
-  username: string;
-  password: string;
+  Username: string;
+  Password: string;
 }
 
 interface Nomination {
   id: string;
-  nominator: string;
-  challengeID: string;  
-  started_at: Date;
-  text: string;     
-  icon: string;
+  Nominator: string;
+  ChallengeID: string;
+  StartedAt: Date;
+  Text: string;
+  Icon: string;
 }
 
 interface Request {
   id: string;
-  nominationID: string;
-  nomineeID: string;
-  active: boolean;
+  NominationID: string;
+  NomineeID: string;
+  Active: boolean;
 }
 
 interface Challenge {
   id: string;
-  title: string;
-  description: string;
-  pictures: string[];
-  started_by: string;
-  started_at: Date;
-  location: string;
+  Title: string;
+  Description: string;
+  Pictures: string[];
+  StartedBy: string;
+  StartedAt: Date;
+  Location: string;
 }
 
 interface Deed {
@@ -58,11 +58,11 @@ interface Deed {
 
 interface RequestDetails {
   id: string;
-  title: string;
-  nominatedBy: string;
-  timeLeft: string;
-  peopleInChain: number;
-  icon: "tree" | "coffee";
+  Title: string;
+  NominatedBy: string;
+  TimeLeft: string;
+  PeopleInChain: number;
+  Icon: "tree" | "coffee";
 }
 
 export const getUsers = async () => {
@@ -82,18 +82,15 @@ export const getUsers = async () => {
 export const getUserById = async (userId: string): Promise<User | null> => {
   try {
     const userDoc = await getDoc(doc(db, "users", userId));
-
     if (userDoc.exists()) {
       const data = userDoc.data();
-      const userData: User = {
+      return {
         id: userId,
-        username: data.Username,
-        password: data.Password
+        Username: data.Username,
+        Password: data.Password,
       };
-      return userData;
-    } else {
-      return null;
     }
+    return null;
   } catch (error) {
     console.error("Error fetching user:", error);
     return null;
@@ -108,7 +105,7 @@ export const getNominations = async () => {
       return {
         id: doc.id,
         ...data,
-        started_at: data.StartedAt.toDate(),
+        StartedAt: data.StartedAt.toDate(),
       } as Nomination;
     });
     return nominations;
@@ -127,8 +124,8 @@ export const getNominationById = async (
       const data = nominationDoc.data();
       return {
         id: nominationDoc.id,
-        ...data,    
-        started_at: data.StartedAt.toDate(),
+        ...data,
+        StartedAt: data.StartedAt.toDate(),
       } as Nomination;
     }
     return null;
@@ -145,9 +142,9 @@ export const getRequests = async (): Promise<Request[]> => {
       const data = doc.data();
       return {
         id: doc.id,
-        nominationID: data.NominationID,
-        nomineeID: data.NomineeID,
-        active: data.Active
+        NominationID: data.NominationID,
+        NomineeID: data.NomineeID,
+        Active: data.Active,
       } as Request;
     });
     return requests;
@@ -166,9 +163,9 @@ export const getRequestById = async (
       const data = requestDoc.data();
       return {
         id: requestDoc.id,
-        nominationID: data.NominationID,
-        nomineeID: data.NomineeID,
-        active: data.Active || true
+        NominationID: data.NominationID,
+        NomineeID: data.NomineeID,
+        Active: data.Active || true,
       } as Request;
     }
     return null;
@@ -178,7 +175,10 @@ export const getRequestById = async (
   }
 };
 
-export const getRequestsByNomineeId = async (userId: string, active: boolean): Promise<Request[]> => {
+export const getRequestsByNomineeId = async (
+  userId: string,
+  active: boolean
+): Promise<Request[]> => {
   try {
     const requestsRef = collection(db, "requests");
     const q = query(
@@ -187,20 +187,18 @@ export const getRequestsByNomineeId = async (userId: string, active: boolean): P
       where("Active", "==", active)
     );
     const querySnapshot = await getDocs(q);
-    
+
     const requests: Request[] = querySnapshot.docs.map((doc) => {
       const data = doc.data();
 
       const request: Request = {
         id: doc.id,
-        nominationID: data.NominationID,
-        nomineeID: data.NomineeID,
-        active: data.Active ?? true
+        NominationID: data.NominationID,
+        NomineeID: data.NomineeID,
+        Active: data.Active ?? true,
       };
-      
       return request;
     });
-    
     return requests;
   } catch (error) {
     console.error("Error fetching requests for nominee:", error);
@@ -216,7 +214,7 @@ export const getChallenges = async () => {
       return {
         id: doc.id,
         ...data,
-        started_at: data.StartedAt.toDate(),
+        StartedAt: data.StartedAt.toDate(),
       } as Challenge;
     });
     return challenges;
@@ -236,7 +234,7 @@ export const getChallengeById = async (
       return {
         id: challengeDoc.id,
         ...data,
-        started_at: data.StartedAt.toDate(),
+        StartedAt: data.StartedAt.toDate(),
       } as Challenge;
     }
     return null;
@@ -253,7 +251,7 @@ export const getDeeds = async () => {
       const data = doc.data();
       return {
         id: doc.id,
-        ...data, 
+        ...data,
         DoneAt: data.DoneAt.toDate(),
       } as Deed;
     });
@@ -271,7 +269,7 @@ export const getDeedById = async (deedId: string): Promise<Deed | null> => {
       const data = deedDoc.data();
       return {
         id: deedDoc.id,
-        ...data, 
+        ...data,
         DoneAt: data.DoneAt.toDate(),
       } as Deed;
     }
@@ -344,19 +342,19 @@ export const createUser = async (
 };
 
 export const createNomination = async (
-  nominationData: Omit<Nomination, "id" | "started_at"> & { started_at?: Date }
+  nominationData: Omit<Nomination, "id" | "StartedAt"> & { StartedAt?: Date }
 ): Promise<Nomination | null> => {
   try {
     const data = {
       ...nominationData,
-      StartedAt: Timestamp.fromDate(nominationData.started_at || new Date())
+      StartedAt: Timestamp.fromDate(nominationData.StartedAt || new Date()),
     };
 
     const docRef = await addDoc(collection(db, "nominations"), data);
     return {
       id: docRef.id,
       ...nominationData,
-      started_at: nominationData.started_at || new Date(),
+      StartedAt: nominationData.StartedAt || new Date(),
     };
   } catch (error) {
     console.error("Error creating nomination:", error);
@@ -365,23 +363,19 @@ export const createNomination = async (
 };
 
 export const createRequest = async (
-  requestData: Omit<Request, "id"> & { active?: boolean }
+  requestData: Omit<Request, "id"> & { Active?: boolean }
 ): Promise<Request | null> => {
   try {
     const data = {
-      NominationID: requestData.nominationID,
-      NomineeID: requestData.nomineeID,
-      Active: requestData.active ?? true, // defaults to true if not provided
-      ...requestData,
-      active: requestData.active ?? true, // defaults to true if not provided
+      NominationID: requestData.NominationID,
+      NomineeID: requestData.NomineeID,
+      Active: requestData.Active ?? true,
     };
 
     const docRef = await addDoc(collection(db, "requests"), data);
     return {
       id: docRef.id,
-      nominationID: data.NominationID,
-      nomineeID: data.NomineeID,
-      active: data.Active
+      ...data,
     } as Request;
   } catch (error) {
     console.error("Error creating request:", error);
@@ -390,19 +384,19 @@ export const createRequest = async (
 };
 
 export const createChallenge = async (
-  challengeData: Omit<Challenge, "id" | "started_at"> & { started_at?: Date }
+  challengeData: Omit<Challenge, "id" | "StartedAt"> & { StartedAt?: Date }
 ): Promise<Challenge | null> => {
   try {
     const data = {
       ...challengeData,
-      StartedAt: Timestamp.fromDate(challengeData.started_at || new Date())
+      StartedAt: Timestamp.fromDate(challengeData.StartedAt || new Date()),
     };
 
     const docRef = await addDoc(collection(db, "challenges"), data);
     return {
       id: docRef.id,
       ...challengeData,
-      started_at: challengeData.started_at || new Date(),
+      StartedAt: challengeData.StartedAt || new Date(),
     };
   } catch (error) {
     console.error("Error creating challenge:", error);
@@ -448,7 +442,6 @@ export const deleteRequest = async (requestId: string): Promise<boolean> => {
   }
 };
 
- 
 export const getRequestsList = async (
   userId: string
 ): Promise<RequestDetails[]> => {
@@ -503,11 +496,11 @@ export const getRequestsList = async (
 
         return {
           id: requestDoc.id,
-          title: challenge?.Title || "Unknown Challenge",
-          nominatedBy: nominator?.Username || "Unknown User",
-          timeLeft: "24:00:00",
-          peopleInChain: challenge?.Participants || 0,
-          icon: (nomination?.Icon as "tree" | "coffee") || "tree",
+          Title: challenge?.Title || "Unknown Challenge",
+          NominatedBy: nominator?.Username || "Unknown User",
+          TimeLeft: "24:00:00",
+          PeopleInChain: challenge?.Participants || 0,
+          Icon: (nomination?.Icon as "tree" | "coffee") || "tree",
         };
       })
     );
