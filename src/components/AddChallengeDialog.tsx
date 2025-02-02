@@ -39,7 +39,6 @@ export function AddChallengeDialog({
     const data = {
       title: formData.get("title"),
       description: formData.get("description"),
-      imageUrl: formData.get("imageUrl"),
       causeName: formData.get("causeName"),
       causeUrl: formData.get("causeUrl"),
     };

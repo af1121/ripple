@@ -1,11 +1,11 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
-import { ImagePlus } from "lucide-react";
+import { ImagePlus, MapPin } from "lucide-react";
 import { createShareMessage, shareViaSMS } from "@/lib/shareUtils";
 
 interface JoinChallengeProps {
@@ -34,6 +34,9 @@ export function JoinChallenge({
   const [image, setImage] = useState<File | null>(null);
   const [description, setDescription] = useState("");
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [location, setLocation] = useState<{lat: number; lng: number} | null>(null);
+  const [locationError, setLocationError] = useState<string>("");
+  const [isCollectingLocation, setIsCollectingLocation] = useState(false);
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -78,9 +81,35 @@ export function JoinChallenge({
     });
   };
 
+  const handleGetLocation = () => {
+    setIsCollectingLocation(true);
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        setLocation({
+          lat: position.coords.latitude,
+          lng: position.coords.longitude
+        });
+        setLocationError("");
+        setIsCollectingLocation(false);
+        toast.success("Location collected successfully");
+      },
+      (error) => {
+        setLocationError("Please enable location access to join the challenge");
+        toast.error("Location access is required");
+        setIsCollectingLocation(false);
+      }
+    );
+  };
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
+
+    if (!location) {
+      toast.error("Location is required to join the challenge");
+      setLoading(false);
+      return;
+    }
 
     if (!image) {
       toast.error("Please upload a photo");
@@ -102,6 +131,7 @@ export function JoinChallenge({
       image,
       description,
       nominees: validNominees,
+      location,
     };
 
     try {
@@ -133,6 +163,11 @@ export function JoinChallenge({
         <DialogHeader>
           <DialogTitle>Join Challenge</DialogTitle>
         </DialogHeader>
+        {locationError && (
+          <div className="text-red-500 text-sm mb-4">
+            {locationError}
+          </div>
+        )}
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="space-y-2">
             <Label htmlFor="image">Your Challenge Photo</Label>
@@ -215,6 +250,32 @@ export function JoinChallenge({
                   )}
                 </div>
               ))}
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label>Your Location</Label>
+            <div className="space-y-2">
+              <Button
+                type="button"
+                variant="outline"
+                className="w-full"
+                onClick={handleGetLocation}
+                disabled={isCollectingLocation}
+              >
+                <MapPin className="w-4 h-4 mr-2" />
+                {isCollectingLocation 
+                  ? "Collecting Location..." 
+                  : location 
+                    ? "Update Location" 
+                    : "Enter Your Location"
+                }
+              </Button>
+              {location && (
+                <div className="text-sm text-muted-foreground">
+                  📍 Latitude: {location.lat.toFixed(4)}, Longitude: {location.lng.toFixed(4)}
+                </div>
+              )}
             </div>
           </div>
 
